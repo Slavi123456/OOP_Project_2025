@@ -36,7 +36,39 @@ void testDataArr() {
 	delete[]arr;
 
 }
+void testTableAdd_Print() {
+	Table tab;
 
+	Decimal dec(55.89);
+	std::vector<Data*> vec;
+	vec.push_back(&dec);
+	
+	tab.addLine(vec);
+	//tab.insertType(Decimal(55.89));
+	//tab.addData(Decimal(55.89), 0);
+	//tab.addData(Integer(4), 1);
+	//tab.addData(Integer(), 1);
+	tab.print();
+}
+void testTableRPN_Print() {
+	Table tab;
+	//tab.addData(Decimal(55.89), 0);
+	//tab.addData(Integer(4), 1);
+	//tab.addData(Integer(), 1);
+	tab.print(1);
+}
 int main()
 {
+	testTableAdd_Print();
+
+}
+
+void reserveVecFunc() {
+	std::vector<int> a;
+	a.push_back(1);
+	std::cout << a.size() << " " << a.capacity() << std::endl;
+
+	a.reserve(8);
+	std::cout << a.size() << " " << a.capacity();
+	
 }

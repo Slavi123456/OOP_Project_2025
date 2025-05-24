@@ -3,13 +3,17 @@
 
 class Integer: public Data{
 public:
+	Integer();
 	Integer(int integer);
 	//Serialization & deserialization
-	int getData() const;
+	int getValue() const;
+	std::string getData() const override;
 	void setData(int data);
 	void print() override;
 	
-	
+	Data* clone() const override;
+	Data* emptyClone() const;
+
 	const char* getName() const override;
 private:
 	int integer;

@@ -131,6 +131,7 @@
     <ClCompile Include="Decimal.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandHandler.hpp" />
