@@ -16,6 +16,11 @@ public:
 	
 	Data* clone() const override;
 	Data* emptyClone() const override;
+
+	bool operator==(const Data* other) const override;
+	bool operator!=(const Data* other) const override;
+
+	void print(std::ostream& os) const override;
 private:
 	double decimal; //do i have to have float
 };

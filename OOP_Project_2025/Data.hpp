@@ -27,6 +27,15 @@ public:
 
 	virtual Data* clone() const = 0; //virutal copy constructor
 	virtual Data* emptyClone() const = 0; //can it be done other way //wont it be better to make them static 
+
+	bool isDataNull() const{
+		return isNull;
+	}
+
+	virtual bool operator==(const Data* other) const = 0;
+	virtual bool operator!=(const Data* other) const = 0;
+	
+	virtual void print(std::ostream& os) const = 0;
 protected:
 	bool isNull = true;
 private:

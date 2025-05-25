@@ -2,11 +2,18 @@
 #include "Data.hpp"
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iostream>
+
+constexpr int DEFAULT_SPACING = 3; //does it have to be static to not be seen by other files ?
+constexpr int SPACING_FOR_FILES = 1;
+
+static Data* dataFactory(std::string& type, std::string& value);
 
 //encapsulation
 class Table {
 public:
-	Table();
+	Table() = default;
 	//Table(int rows,int colums);
 	~Table();
 	//Serialization, Deserialization
@@ -20,15 +27,25 @@ public:
 	void insertType(const Data* data);
 	void insertType(Data&& data);
 	*/
-	void addLine(const std::vector<Data*>& row); 
-	void print();
-	void print(int rpn);
-	void printTypes();
+	void addLine(const std::vector<Data*>& row); //insert types
+	void addColumn(const Data* data); //addcolumn
+	
+	void print() const;
+	void print(int rpn) const; //need functionallity like first page ...
+	void printTypes(int count = DEFAULT_SPACING, std::ostream& os = std::cout) const; //describe //is it a problem to make so much default values
 
-
+	void select(unsigned indexColumn, const Data* value); //select
+	std::ostream& writeToStream(std::ostream& os) const; //export
 private:
-	void printRows(int start, int end);
+
+	void printRows(int start, int end) const;
+	void printSelectedRows(const std::vector<int>& indexRows) const;
+	void printRow(int indexRow, std::ostream& os = std::cout) const;
+	void printRowData(std::ostream& os,int indexRow, int spacingSize = DEFAULT_SPACING) const;
+	
 	int nextCappacityForVector(int currCap) const;
+	int columnsCount() const;
+	int rowsCount() const;
 	/*class Row {
 	public:
 		//BIG4/6

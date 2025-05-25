@@ -53,3 +53,26 @@ const char* Integer::getName() const
 {
     return "Integer";
 }
+
+bool Integer::operator==(const Data* other) const
+{
+    if (this->isNull && other->isDataNull()) return true; //this to be in the Data class
+    else if (this->isNull) return false;
+    else if (other->isDataNull()) return false;
+
+    const Integer* otherInte = dynamic_cast<const Integer*>(other); //can it be avoided?
+    if (!otherInte) return false;
+
+    return otherInte->integer == this->integer; //cannot be done only this 
+    //because class Data doesn't have getValue, because it doesn't know what type to return
+}
+
+bool Integer::operator!=(const Data* other) const
+{
+    return !(this == other);
+}
+
+void Integer::print(std::ostream& os) const
+{
+    os << this->integer;
+}

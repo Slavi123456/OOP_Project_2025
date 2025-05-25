@@ -53,3 +53,25 @@ Data* Decimal::emptyClone() const
 {
     return new Decimal();
 }
+
+bool Decimal::operator==(const Data* other) const
+{
+    if (this->isNull && other->isDataNull()) return true; //this to be in the Data class
+    else if (this->isNull) return false;
+    else if (other->isDataNull()) return false;
+
+    const Decimal* otherDece = dynamic_cast<const Decimal*>(other);
+    if (!otherDece)  return false;
+
+    return otherDece->decimal == this->decimal;
+}
+
+bool Decimal::operator!=(const Data* other) const
+{
+    return !(this == other);
+}
+
+void Decimal::print(std::ostream& os) const
+{
+    os << this->decimal;
+}
