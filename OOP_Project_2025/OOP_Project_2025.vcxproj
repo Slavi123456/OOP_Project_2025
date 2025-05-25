@@ -127,8 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Data.cpp" />
     <ClCompile Include="DataBase.cpp" />
     <ClCompile Include="Decimal.cpp" />
+    <ClCompile Include="Factory.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Table.cpp" />
@@ -139,7 +141,9 @@
     <ClInclude Include="DataBase.hpp" />
     <ClInclude Include="Date.hpp" />
     <ClInclude Include="Decimal.hpp" />
+    <ClInclude Include="Factory.hpp" />
     <ClInclude Include="Integer.hpp" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="String.hpp" />
     <ClInclude Include="Table.hpp" />
   </ItemGroup>

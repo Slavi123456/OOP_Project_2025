@@ -1,0 +1,4 @@
+ Decimal Integer Integer 
+55.89 NULL 4 
+55.89 NULL 4 
+55.89 NULL 4 

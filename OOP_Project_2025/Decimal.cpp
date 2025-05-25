@@ -1,5 +1,5 @@
 #include "Decimal.hpp"
-#include "iostream"
+#include <fstream>
 
 Decimal::Decimal()
 {
@@ -30,13 +30,13 @@ void Decimal::setData(double data)
     this->isNull = false;
 }
 
-void Decimal::print()
+void Decimal::print(std::ostream& os) const
 {
     if (isNull) {
-        std::cout << " NULL " << std::endl;
+        os << "NULL";
         return;
     }
-    std::cout << this->decimal << std::endl;
+    os << this->decimal;
 }
 
 const char* Decimal::getName() const 
@@ -71,7 +71,3 @@ bool Decimal::operator!=(const Data* other) const
     return !(this == other);
 }
 
-void Decimal::print(std::ostream& os) const
-{
-    os << this->decimal;
-}

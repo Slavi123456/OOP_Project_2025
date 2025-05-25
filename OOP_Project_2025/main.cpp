@@ -4,17 +4,20 @@
 #include "integer.hpp"
 #include "decimal.hpp"
 #include "table.hpp"
+#include <fstream>
+#include <string>
+#include "main.h"
 
 void testInteger() {
 	Integer inte(4);
 	std::cout << inte.getName() << " ";
-	inte.print();
+	inte.print(std::cout);
 	std::cout << std::endl;
 }
 void testDecimal() {
 	Decimal dece(6.01);
 	std::cout << dece.getName() << " ";
-	dece.print();
+	dece.print(std::cout);
 	std::cout << std::endl;
 
 }
@@ -29,7 +32,7 @@ void testDataArr() {
 	for (size_t i = 0; i < 2; i++)
 	{
 		std::cout << arr[i]->getName() << " ";
-		arr[i]->print();
+		arr[i]->print(std::cout);
 		std::cout << std::endl;
 		//delete arr[i]; NO CANT DELETE variables on the stack
 	}
@@ -44,6 +47,7 @@ void testTableAdd_Print() {
 	std::vector<Data*> vec;
 	vec.push_back(&dec);
 	
+	tab.addLine(vec);
 	tab.addLine(vec);
 	tab.print();
 }
@@ -93,7 +97,7 @@ void testTableRPN_Print() {
 void testTablePrint_Types() {
 	Table tab;
 	std::cout << "Table types: ";
-	tab.printTypes();
+	tab.printTypes(std::cout);
 
 	Decimal dec(55.89);
 	Integer inte;
@@ -109,7 +113,7 @@ void testTablePrint_Types() {
 	tab.print();
 
 	std::cout << "Table types: ";
-	tab.printTypes();
+	tab.printTypes(std::cout);
 }
 void testTableSelect() {
 	Table tab;
@@ -141,7 +145,7 @@ void testTableSelect() {
 	std::cout << std::endl << "Selection by third column for Integer(2)" << std::endl;
 	tab.select(2, &inte3);
 }
-void testTableExport() {
+void testTableExport(const std::string& fileName) {
 	Table tab;
 
 	Decimal dec(55.89);
@@ -150,17 +154,40 @@ void testTableExport() {
 
 	std::vector<Data*> vec = { &dec, &inte, &inte2 };
 	tab.addLine(vec);
+	tab.addLine(vec);
+	tab.addLine(vec);
 
-	tab.writeToStream(std::cout);
+	std::ofstream os(fileName);
+	if (!os) {
+		std::cerr << "Could not open file.\n";
+		return;
+	}
+	tab.writeToStream(os);
+}
+void testTableDesirialization(const std::string& fileName) {
+	Table tab;
+	
+	std::ifstream is(fileName);
+	if (!is) {
+		std::cerr << "Could not open file.\n";
+		return;
+	}
+
+	tab.readFromStream(is);
+	tab.print();
 }
 
+void testTableSerAndDes(const std::string& fileName) {
+	testTableExport(fileName);
+	testTableDesirialization(fileName);
+}
 int main()
 {
-	//testTablePrint_Types();
-	//testTableRPN_Print();
-	testTableExport();
+	//testTableAdd_Print();
+	testTableRPN_Print();
+	//testTableExport();
+	//testTableSerAndDes("opit2.txt");
 }
-
 void reserveVecFunc() {
 	std::vector<int> a;
 	a.push_back(1);

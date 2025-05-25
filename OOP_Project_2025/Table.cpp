@@ -1,7 +1,38 @@
 #include "Table.hpp"
-#include <iostream> //does it have to be in the hpp
-#include <cmath>
+//#include <cmath> //in the standart library there is abs
+#include "Factory.hpp"
 
+////////////////////////////////////////////////////////////////////////////////
+static void splitLineInWords(const std::string& line, std::vector<std::string>& words)
+{
+	if (line.empty())
+	{
+		throw "String of the line is empty";
+	}
+
+	std::string word;
+	int sizeLine = line.size();
+	for (size_t i = 0; i < sizeLine; i++) {
+		char c = line[i];
+		if (c == ' ') {
+			if (!word.empty()) {
+				words.push_back(word);
+				word.clear();
+			}
+		}
+		else {
+			word += c;
+		}
+	}
+
+	//checking for any left
+	if (!word.empty()) {
+		words.push_back(word);
+	}
+}
+////////////////////////////////////////////////////////////////////////////////
+
+//it's needed because we hold pointers which have to be deleted
 Table::~Table()
 {
 	int rowsCount = data.size();
@@ -22,7 +53,7 @@ void Table::addLine(const std::vector<Data*>& row) //needs refactoring
 	int currSize = this->data.size();
 	if (currSize + 1 > rowCappacity)
 	{
-		this->data.reserve(nextCappacityForVector(rowCappacity)); //this only allocates 
+		this->data.reserve(nextCappacityForVector(rowCappacity)); //this only allocates //NO calling default constructor
 	}
 
 	//check if there is any rows already
@@ -34,6 +65,7 @@ void Table::addLine(const std::vector<Data*>& row) //needs refactoring
 		//check if the types are equal // could be rewritten if can transfer one type to another like Integer to Double or something other
 		for (size_t i = 0; i < rowSize; i++) //won't it be better to make class Row 
 		{
+			if (!row[i]) throw "there is nullptr in the row vector in addLine";
 			if (strcmp(this->data[0][i]->getName(), row[i]->getName()) != 0) throw "kvo praim";
 		}
 	}
@@ -49,8 +81,11 @@ void Table::addLine(const std::vector<Data*>& row) //needs refactoring
 }
 void Table::addColumn(const Data* data)
 {
+	if (!data) return; //do i need to throw ?
+
+
 	//if it's empty i want to add one row and then the column; 
-	//Because this doesnt add rows: resize it's not needed
+	//Because this doesnt add rows: checking for resize it's not needed
 	if (this->data.empty()) {
 		this->data.reserve(nextCappacityForVector(this->data.capacity())); 
 		std::vector<Data* >vec;
@@ -95,7 +130,7 @@ void Table::print(int rpn) const //it needs functionalities like first page etc.
 void Table::printRows(int start, int end) const
 {
 	if (this->data.empty() || start == end) return;
-	printTypes(DEFAULT_SPACING);
+	printTypes(std::cout, DEFAULT_SPACING);
 
 	for (size_t i = start; i < end; i++)
 	{
@@ -104,7 +139,7 @@ void Table::printRows(int start, int end) const
 }
 void Table::printSelectedRows(const std::vector<int>& indexRows) const
 {
-	printTypes(DEFAULT_SPACING);
+	printTypes(std::cout, DEFAULT_SPACING);
 
 	int sizeArr = indexRows.size();
 	for (size_t i = 0; i < sizeArr; i++)
@@ -114,7 +149,7 @@ void Table::printSelectedRows(const std::vector<int>& indexRows) const
 }
 void Table::printRow(int indexRow, std::ostream& os) const
 {
-	std::cout << indexRow << "  "; //better spacing way
+	std::cout << indexRow << std::string(DEFAULT_SPACING, ' ');
 	printRowData(os, indexRow, DEFAULT_SPACING);
 }
 void Table::printRowData(std::ostream& os, int indexRow, int spacingSize) const
@@ -127,15 +162,15 @@ void Table::printRowData(std::ostream& os, int indexRow, int spacingSize) const
 		os << spacing;
 	}
 
-	std::cout << std::endl;
+	os << std::endl;
 }
-void Table::printTypes(int count, std::ostream& os) const
+void Table::printTypes(std::ostream& os, int count) const
 {
 	if (this->data.empty()) {
 		//os << "This table is empty" << std::endl; //wouldnt it be better to throw "cannot print types that are empty"?? 
 		return;
 	}
-	std::string spacing(count, ' '); //need to check for the aligment of the values
+	std::string spacing(count, ' '); 
 	os << spacing; 
 	
 	int columsCount = data[0].size();
@@ -173,21 +208,52 @@ void Table::select(unsigned indexColumn, const Data* value)
 	printSelectedRows(indexSelectedRows);
 }
 
-std::ostream& Table::writeToStream(std::ostream& os) const {
+void Table::writeToStream(std::ostream& os) const {
 	
 	if (this->data.empty()) {
-		return os;
+		return;
 	}
 
-	printTypes(SPACING_FOR_FILES);
+	printTypes(os, SPACING_FOR_FILES);
 	
 	int rowsCount = this->data.size();
 	for (size_t i = 0; i < rowsCount; i++)
 	{
 		printRowData(os, i, SPACING_FOR_FILES);
 	}
+}
+void Table::readFromStream(std::istream& is) //refactoring!!! 
+{
+	//how to make the exception safety here ?
+	//which is better: reading line by line / the whole at one
+	
+	//getting the line with types
+	std::string line;
+	std::getline(is, line); //can this throw??
 
-	return os;
+	std::vector<std::string> types;
+	splitLineInWords(line, types);
+
+	while (std::getline(is, line)) //if it's with is.eof() it will make one cycle more for the eof symbol
+	{
+		std::vector<std::string> values;
+		splitLineInWords(line, values);
+		
+		if (values.size() != types.size())
+		{
+			throw "Count of the needed parameters doesn't match the count of the wanted types";
+		}
+
+		std::vector<Data*> dataValues;
+		int size = values.size();
+		for (size_t i = 0; i < size; i++)
+		{
+			//try catch ?
+			dataValues.push_back(dataFactory(types[i], values[i]));
+		}
+
+		addLine(dataValues);
+	}
 }
 
 int Table::nextCappacityForVector(int currCap) const
@@ -200,7 +266,3 @@ int Table::nextCappacityForVector(int currCap) const
 	return res;
 }
 ////////////////////////////////////////////////////////////////////////////////
-Data* dataFactory(std::string& type, std::string& value)
-{
-	return nullptr;
-}

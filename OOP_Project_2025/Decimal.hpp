@@ -5,12 +5,14 @@ class Decimal: public Data {
 public:
 	Decimal();
 	Decimal(double decimal); //explicit??
-	//Serialization & deserialization
+	
 	double getValue() const;
 	std::string getData() const override;
 
 	void setData(double data);
-	void print() override; //needs to fill zeros behind the comma
+
+	//serialization
+	void print(std::ostream& os) const override; //needs to fill zeros behind the comma
 
 	const char * getName() const override;
 	
@@ -20,7 +22,7 @@ public:
 	bool operator==(const Data* other) const override;
 	bool operator!=(const Data* other) const override;
 
-	void print(std::ostream& os) const override;
+	
 private:
 	double decimal; //do i have to have float
 };

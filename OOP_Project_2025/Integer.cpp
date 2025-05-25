@@ -1,5 +1,5 @@
 #include "Integer.hpp"
-#include <iostream> //is it better to be declarated here or not
+#include <fstream>
 
 Integer::Integer()
 {
@@ -30,13 +30,13 @@ void Integer::setData(int data)
     this->isNull = false;
 }
 
-void Integer::print()
+void Integer::print(std::ostream& os) const
 {
     if (isNull) {
-        std::cout << " NULL " << std::endl; 
+        os << "NULL"; 
         return;
     }
-    std::cout << this->integer << std::endl;
+    os << this->integer;
 }
 
 Data* Integer::clone() const
@@ -63,16 +63,11 @@ bool Integer::operator==(const Data* other) const
     const Integer* otherInte = dynamic_cast<const Integer*>(other); //can it be avoided?
     if (!otherInte) return false;
 
-    return otherInte->integer == this->integer; //cannot be done only this 
+    return otherInte->integer == this->integer; //cannot be done by only this 
     //because class Data doesn't have getValue, because it doesn't know what type to return
 }
 
 bool Integer::operator!=(const Data* other) const
 {
     return !(this == other);
-}
-
-void Integer::print(std::ostream& os) const
-{
-    os << this->integer;
 }
