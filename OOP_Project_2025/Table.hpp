@@ -11,6 +11,10 @@ constexpr int SPACING_FOR_FILES = 1;
 static void splitLineInWords(const std::string& line, std::vector<std::string>& words);
 
 class Table {
+private:
+	//would it be good idea to have insight class Row { vec<Data*> }
+	std::string name;
+	std::vector<std::vector<Data*>> data;
 public:
 	Table() = default;
 	//Table(int rows,int colums);
@@ -27,7 +31,9 @@ public:
 	
 	//Serialization, Deserialization
 	void writeToStream(std::ostream& os) const; //export
-	void readFromStream(std::istream& is); //that function here means: we have to create firstly Table through the default constructor //needs refactoring
+	void readFromStream(std::istream& is); //that function here means: we have to create first Table through the default constructor //needs refactoring
+
+	void changeOneValue();
 private:
 
 	void printRows(int start, int end) const;
@@ -41,7 +47,4 @@ private:
 	//int columnsCount() const;
 	//int rowsCount() const;
 	
-	//would it be good idea to have insight class Row { vec<Data*> }
-	std::string name;
-	std::vector<std::vector<Data*>> data; 
 };

@@ -1,6 +1,7 @@
 #pragma once 
 #include <string>
+#include <vector>
 
 class Data; 
 
-Data* dataFactory(std::string& type, std::string& value);
+Data* dataFactory(std::string& type,const std::vector<std::string>& value, int& startingInd);

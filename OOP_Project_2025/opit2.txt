@@ -1,4 +1,4 @@
- Decimal Integer Integer 
-55.89 NULL 4 
-55.89 NULL 4 
-55.89 NULL 4 
+ Decimal Integer Date String 
+55.89 NULL 1 2 1900 13"2\1 
+55.89 NULL 1 2 1900 13"2\1 
+55.89 NULL 1 2 1900 13"2\1 

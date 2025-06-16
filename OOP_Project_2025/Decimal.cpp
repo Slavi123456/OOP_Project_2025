@@ -1,6 +1,7 @@
 #include "Decimal.hpp"
 #include <fstream>
 
+////////////--Constructors--////////////
 Decimal::Decimal()
 {
 }
@@ -10,26 +11,19 @@ Decimal::Decimal(double decimal): Data()
     setData(decimal);
 }
 
+////////////--Functions--////////////
 double Decimal::getValue() const
 {
     return decimal;
 }
-
-std::string Decimal::getData() const
-{
-    if (isNull) {
-        return std::string("NULL");
-    }
-    return std::to_string(decimal);
-}
-
-void Decimal::setData(double data) 
+void Decimal::setData(double data)
 {
     //any condition on the data // round?
     this->decimal = data;
     this->isNull = false;
 }
 
+////////////--From Data--////////////
 void Decimal::print(std::ostream& os) const
 {
     if (isNull) {
@@ -44,12 +38,20 @@ const char* Decimal::getName() const
     return "Decimal";
 }
 
-Data* Decimal::clone() const
+//std::string Decimal::getData() const
+//{
+//    if (isNull) {
+//        return std::string("NULL");
+//    }
+//    return std::to_string(decimal);
+//}
+
+Decimal* Decimal::clone() const
 {
     return new Decimal(*this);
 }
 
-Data* Decimal::emptyClone() const
+Decimal* Decimal::emptyClone() const
 {
     return new Decimal();
 }
@@ -70,4 +72,4 @@ bool Decimal::operator!=(const Data* other) const
 {
     return !(this == other);
 }
-
+////////////----////////////

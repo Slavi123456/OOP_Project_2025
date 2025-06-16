@@ -2,12 +2,14 @@
 #include "Data.hpp"
 
 class Decimal: public Data {
+private:
+	double decimal; //do i have to have float
 public:
 	Decimal();
 	Decimal(double decimal); //explicit??
 	
 	double getValue() const;
-	std::string getData() const override;
+	////////////--From Data--////////////
 
 	void setData(double data);
 
@@ -15,14 +17,12 @@ public:
 	void print(std::ostream& os) const override; //needs to fill zeros behind the comma
 
 	const char * getName() const override;
-	
-	Data* clone() const override;
-	Data* emptyClone() const override;
+	//std::string getData() const override;
+
+	Decimal* clone() const override;
+	Decimal* emptyClone() const override;
 
 	bool operator==(const Data* other) const override;
 	bool operator!=(const Data* other) const override;
-
-	
-private:
-	double decimal; //do i have to have float
+	////////////////////////////////////
 };

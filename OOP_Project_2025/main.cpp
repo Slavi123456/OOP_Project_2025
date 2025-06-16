@@ -6,7 +6,8 @@
 #include "table.hpp"
 #include <fstream>
 #include <string>
-#include "main.h"
+#include "date.hpp"
+#include "String.hpp"
 
 void testInteger() {
 	Integer inte(4);
@@ -38,6 +39,40 @@ void testDataArr() {
 	}
 	delete[]arr;
 
+}
+void testDataDate() {
+	Date date(1, 2, 3000);
+	std::cout << date.getName() << " ";
+	date.print(std::cout);
+	std::cout << std::endl;
+
+	Date* emptyDate = date.emptyClone();
+	std::cout << emptyDate->getName() << " ";
+	emptyDate->print(std::cout);
+	std::cout << std::endl;
+
+	Date* date2 = date.clone();
+
+	std::cout << std::boolalpha << (date == date2) << std::endl;
+	delete emptyDate;
+	delete date2;
+}
+void testDataString() {
+	MyString str("1\\23\"4");
+	std::cout << str.getName() << " ";
+	str.print(std::cout);
+	std::cout << std::endl;
+
+	MyString* empStr = str.emptyClone();
+	std::cout << empStr->getName() << " ";
+	empStr->print(std::cout);
+	std::cout << std::endl;
+
+	MyString* str2 = str.clone();
+
+	std::cout << std::boolalpha << (str == str2) << std::endl;
+	delete empStr;
+	delete str2;
 }
 
 void testTableAdd_Print() {
@@ -150,9 +185,11 @@ void testTableExport(const std::string& fileName) {
 
 	Decimal dec(55.89);
 	Integer inte;
-	Integer inte2(4);
+	Date date(1,2,1900);
+	MyString str("13\"2\\1"); 
+	std::cout << std::endl;
 
-	std::vector<Data*> vec = { &dec, &inte, &inte2 };
+	std::vector<Data*> vec = { &dec, &inte, &date, &str};
 	tab.addLine(vec);
 	tab.addLine(vec);
 	tab.addLine(vec);
@@ -164,7 +201,7 @@ void testTableExport(const std::string& fileName) {
 	}
 	tab.writeToStream(os);
 }
-void testTableDesirialization(const std::string& fileName) {
+void testTableDesirialization(const std::string& fileName){
 	Table tab;
 	
 	std::ifstream is(fileName);
@@ -181,13 +218,101 @@ void testTableSerAndDes(const std::string& fileName) {
 	testTableExport(fileName);
 	testTableDesirialization(fileName);
 }
+
+void formatingString(std::string& str)
+{
+
+	std::vector<char> SPECIAL_SYMBOLS{ '\\', '"' };
+	std::vector<int> indSpecialSymbols;
+	int sizeStr = str.size();
+	int countSpecial = SPECIAL_SYMBOLS.size();
+
+	//find ind of all specials 
+	for (size_t i = 0; i < sizeStr; i++)
+	{
+
+		for (size_t y = 0; y < countSpecial; y++)
+		{
+			if (str[i] == SPECIAL_SYMBOLS[y])
+			{
+				indSpecialSymbols.push_back(i);
+			}
+		}
+	}
+
+	//add the needed symbol
+	int countInd = indSpecialSymbols.size();
+	for (int i = countInd - 1; i >= 0; i--)//its reversed because the indexes will be changed from the insert //also int because of size_t its unsigned
+	{
+		str.insert(indSpecialSymbols[i], "\\");
+	}
+
+	//surround with quotations
+	sizeStr = str.size();
+	str.insert(0, "\"");
+	str.push_back('"');
+}
+void testFormatingStr() {
+	std::string s("123\"4");
+	s.insert(2, "\\");
+	std::cout << s << std::endl;
+	formatingString(s);
+	std::cout << s;
+}
+
+void testForAllTypes() {
+	Table tab;
+	tab.print();
+	Decimal dec(55.89);
+	Date date(1, 2, 3000);
+	MyString str("123\"4");
+
+	std::vector<Data*> vec;
+	vec.push_back(&dec);
+	vec.push_back(&date);
+
+	vec.push_back(&str);
+	tab.addLine(vec);
+
+	tab.print();
+
+
+	Integer inte(4); //this 4 can be like default value for every cell
+	tab.addColumn(&inte); //in add columns adds only Integer and not the value 
+
+	MyString str2; //if its str2() its interpreted like function declaration
+	tab.addColumn(&str2); //in add columns adds only Integer and not the value 
+
+	tab.print();
+
+}
+
+
 int main()
 {
 	//testTableAdd_Print();
-	testTableRPN_Print();
+	//testTableRPN_Print();
 	//testTableExport();
-	//testTableSerAndDes("opit2.txt");
+    //testTableSerAndDes("opit2.txt");
+	
+	Table tab;
+
+	Decimal dec(55.89);
+	Integer inte;
+	Date date(1, 2, 1900);
+	MyString str("13\"2\\1");
+	std::cout << std::endl;
+
+	std::vector<Data*> vec = { &dec, &inte, &str };
+	tab.addLine(vec);
+	tab.addLine(vec);
+	
+	tab.print();
+	tab.changeOneValue();
+	tab.print();
+
 }
+
 void reserveVecFunc() {
 	std::vector<int> a;
 	a.push_back(1);

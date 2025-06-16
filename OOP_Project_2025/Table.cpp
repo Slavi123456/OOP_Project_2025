@@ -1,6 +1,7 @@
 #include "Table.hpp"
 //#include <cmath> //in the standart library there is abs
 #include "Factory.hpp"
+#include "Integer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 static void splitLineInWords(const std::string& line, std::vector<std::string>& words)
@@ -66,7 +67,7 @@ void Table::addLine(const std::vector<Data*>& row) //needs refactoring
 		for (size_t i = 0; i < rowSize; i++) //won't it be better to make class Row 
 		{
 			if (!row[i]) throw "there is nullptr in the row vector in addLine";
-			if (strcmp(this->data[0][i]->getName(), row[i]->getName()) != 0) throw "kvo praim";
+			if (strcmp(this->data[0][i]->getName(), row[i]->getName()) != 0) throw "types doesnt match";
 		}
 	}
 	
@@ -232,28 +233,41 @@ void Table::readFromStream(std::istream& is) //refactoring!!!
 	std::getline(is, line); //can this throw??
 
 	std::vector<std::string> types;
-	splitLineInWords(line, types);
+	splitLineInWords(line, types); //can this be changed to reading string till end of line //becuase stream >> string will skip the '\n'
 
 	while (std::getline(is, line)) //if it's with is.eof() it will make one cycle more for the eof symbol
 	{
 		std::vector<std::string> values;
 		splitLineInWords(line, values);
 		
-		if (values.size() != types.size())
+		/*if (values.size() != types.size()) //this wont work from now on becuase the Date want 3arguments 
 		{
 			throw "Count of the needed parameters doesn't match the count of the wanted types";
-		}
+		}*/
 
 		std::vector<Data*> dataValues;
-		int size = values.size();
-		for (size_t i = 0; i < size; i++)
+		int sizeTypes = types.size();
+		int indTypes = 0;
+		int sizeValues = values.size();
+		int indValues = 0;
+
+		while (indTypes < sizeTypes && indValues < sizeValues) //had to make it while because: values.size() != types.size()
 		{
 			//try catch ?
-			dataValues.push_back(dataFactory(types[i], values[i]));
+			dataValues.push_back(dataFactory(types[indTypes], values, indValues));
+			indValues++;
+			indTypes++;
 		}
-
+		
 		addLine(dataValues);
 	}
+}
+
+void Table::changeOneValue()
+{
+	delete[]this->data[0][2];
+	Integer* inte = new Integer(1);
+	data[0][2] = inte;
 }
 
 int Table::nextCappacityForVector(int currCap) const
