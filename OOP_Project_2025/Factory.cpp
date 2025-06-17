@@ -111,3 +111,13 @@ Data* dataFactory(std::string& type, const std::vector<std::string>& value, int&
 
 }
 
+Data* dataFactoryForEmpty(const std::string& type)
+{
+	if (type == "Integer") return new Integer;
+	else if (type == "Decimal") return new Decimal;
+	else if (type == "Date") return new Date;
+	else if (type == "String") return new MyString;
+
+	throw "Unsupported type";
+}
+

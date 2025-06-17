@@ -4,7 +4,7 @@
 #include "Decimal.hpp"
 #include "Date.hpp"
 #include "Utils.hpp" //if its only for isLeapYear, is it worth?
-
+#include "Factory.hpp"
 
 //this is from 1/1/1900
 static void integerToDate(int integer, int& date, int& month, int& year) {
@@ -96,16 +96,33 @@ bool Integer::operator!=(const Data* other) const
 
 Data* Integer::converTo(const char* wantedType) const
 {
+	if (strcmp(wantedType, "Integer") == 0)
+	{
+		return nullptr; //i am not sure if this is correct way to do it
+	}
+	
 	if (strcmp(wantedType, "String") == 0)
 	{
+		if (isNull)
+		{
+			return new MyString; 
+		}
 		return new MyString(std::to_string(this->integer));
 	}
 	else if (strcmp(wantedType, "Decimal") == 0)
 	{
+		if (isNull)
+		{
+			return new Decimal;
+		}
 		return new Decimal((double)this->integer);
 	}
 	else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
 	{
+		if (isNull)
+		{
+			return new Date;
+		}
         int date = STARTING_DATE;
         int month = STARTING_MONTH;
         int year = STARTING_YEAR;

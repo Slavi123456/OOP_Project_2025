@@ -263,15 +263,12 @@ void testFormatingStr() {
 void testForAllTypes() {
 	Table tab;
 	tab.print();
+
 	Decimal dec(55.89);
 	Date date(1, 2, 3000);
 	MyString str("123\"4");
 
-	std::vector<Data*> vec;
-	vec.push_back(&dec);
-	vec.push_back(&date);
-
-	vec.push_back(&str);
+	std::vector<Data*> vec{&dec, &date, &str};
 	tab.addLine(vec);
 
 	tab.print();
@@ -508,6 +505,39 @@ void testDateToOthers() {
 	}
 }
 
+void testTableModify() {
+	Table tab;
+	tab.print();
+
+	Decimal dec(55.89);
+	Date date(1, 2, 3000);
+	MyString str("123\"4");
+
+	std::vector<Data*> vec{ &dec, &date, &str };
+	tab.addLine(vec);
+	tab.addLine(vec);
+	tab.addLine(vec);
+
+	tab.print();
+
+	std::cout << std::endl << "Now this is the modified version of the table where String -> Int" << std::endl << std::endl;
+
+	std::string inte("Integer");
+	tab.modify(2, inte);
+	tab.print();
+
+	std::cout << std::endl << "Now this is the modified version of the table where Date -> Decimal" << std::endl << std::endl;
+
+	std::string dece("Decimal");
+	tab.modify(1, dece);
+	tab.print();
+
+	std::cout << std::endl << "Now this is the modified version of the table where Integer -> String" << std::endl << std::endl;
+
+	std::string strName("String");
+	tab.modify(2, strName);
+	tab.print();
+}
 int main()
 {
 	//testTableAdd_Print();
@@ -516,8 +546,8 @@ int main()
     //testTableSerAndDes("opit2.txt");
 	
 	
-	//testTableUpdateStringToDate();
-
+	testTableUpdateDecimalToDate();
+	//testTableModify();
 }
 
 void reserveVecFunc() {

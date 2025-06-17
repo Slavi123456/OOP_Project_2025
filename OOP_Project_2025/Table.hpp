@@ -39,6 +39,7 @@ public:
 	//void changeOneValue();
 
 	void update(unsigned indexColumn, const Data* value, unsigned targetColumn, const Data* targetValue); //update
+	void modify(unsigned targetColumn, const std::string& targetValue); //modify
 private:
 
 	void printRows(int start, int end) const;
@@ -49,7 +50,12 @@ private:
 	int nextCappacityForVector(int currCap) const;
 	
 	void getRowIndWithValue(unsigned searchColumn, const Data* searched, std::vector<int>& indexSelectedRows); //can this throw
-	void swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows);
+	//void swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows);
+	
+	void canDataSwap(std::vector<Data*>& bufferForSwap, const std::string& targetType, unsigned targetColumn); //could change the name
+	//could this be refactored and use the one above?
+	void canDataSwapWithSelect(std::vector<Data*>& bufferForSwap, const std::string& targetType, unsigned targetColumn, const std::vector<int>& indexSelectedRows, const Data* targetValue); //could change the name
+	void swapRow(std::vector<Data*>& bufferForSwap, unsigned targetColumn);
 	//will these be a good idea?
 	//int columnsCount() const;
 	//int rowsCount() const;

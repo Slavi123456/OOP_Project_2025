@@ -269,53 +269,107 @@ void Table::update(unsigned indexColumn, const Data* value, unsigned targetColum
 	std::vector<int> indexSelectedRows;
 	getRowIndWithValue(indexColumn, value, indexSelectedRows);
 
-	int rowsCount = this->data.size();
-	int currIndSelectedRows = 0;
-	
-	//is this okay by project description
-	for (size_t i = 0; i < rowsCount; i++)
-	{
-		Data* swapData = nullptr;
-		//check if its in the selected rows
-		if (currIndSelectedRows < indexSelectedRows.size() && i == indexSelectedRows[currIndSelectedRows])
-		{
-			//for throwing from not enough memory
-			try
-			{
-				swapData = targetValue->clone();
-			}
-			catch (...)
-			{
-				throw "Couldn't update the target column";
-			}
-			currIndSelectedRows++;
-		}
-		else
-		{
-			//for throwing from a convertion problem
-			try
-			{
-				swapData = this->data[i][targetColumn]->converTo(targetValue->getName());
-			}
-			catch (...) 
-			{
-				//for throwing from not enough memory
-				try
-				{
-					//if not put default state
-					swapData = targetValue->emptyClone();
-				}
-				catch (...)
-				{
-					throw "Couldn't update the target column";
-				}
-			}
-		}
-		if (!swapData) throw "Couldn't assign value to swap in the update";
+	//int rowsCount = this->data.size();
+	//int currIndSelectedRows = 0;
+	//
+	////is this okay by project description
+	//for (size_t i = 0; i < rowsCount; i++)
+	//{
+	//	Data* swapData = nullptr;
+	//	//check if its in the selected rows
+	//	if (currIndSelectedRows < indexSelectedRows.size() && i == indexSelectedRows[currIndSelectedRows])
+	//	{
+	//		//for throwing from not enough memory
+	//		try
+	//		{
+	//			swapData = targetValue->clone();
+	//		}
+	//		catch (...)
+	//		{
+	//			throw "Couldn't update the target column";
+	//		}
+	//		currIndSelectedRows++;
+	//	}
+	//	else
+	//	{
+	//		//for throwing from a convertion problem
+	//		try
+	//		{
+	//			swapData = this->data[i][targetColumn]->converTo(targetValue->getName());
+	//		}
+	//		catch (...) 
+	//		{
+	//			//for throwing from not enough memory
+	//			try
+	//			{
+	//				//if not put default state
+	//				swapData = targetValue->emptyClone();
+	//			}
+	//			catch (...)
+	//			{
+	//				throw "Couldn't update the target column";
+	//			}
+	//		}
+	//	}
+	//	if (!swapData) throw "Couldn't assign value to swap in the update";
 
-		//delete it
-		delete[]this->data[i][targetColumn];
-		swap(this->data[i][targetColumn], swapData);
+	//	//delete it
+	//	delete[]this->data[i][targetColumn];
+	//	swap(this->data[i][targetColumn], swapData);
+	//}
+
+	std::vector<Data*> bufferForSwap;
+	try
+	{
+		canDataSwapWithSelect(bufferForSwap, targetValue->getName(), targetColumn, indexSelectedRows, targetValue);
+		//if success
+		swapRow(bufferForSwap, targetColumn);
+	}
+	catch (const std::exception&)
+	{
+		//deleting the buffer data because of a problem
+		int bufferSize = bufferForSwap.size();
+		for (size_t i = 0; i < bufferSize; i++)
+		{
+			delete[] bufferForSwap[i];
+		}
+	}
+}
+
+//by the project description this wants Null class//its a bit late to reform
+void Table::modify(unsigned targetColumn, const std::string& targetType) 
+{
+	if (targetType.empty())
+	{
+		throw "Cannot modify to empty value";
+	}
+	if (this->data.size() <= 0)
+	{
+		throw "cannot do update before adding values";
+	}
+	if (this->data[0].empty())
+	{
+		throw "the table doesn't have any columns";
+	}
+	if (targetColumn >= this->data[0].size()) {
+		throw "target column is bigger then the table's column count";
+	}
+
+	std::vector<Data*> bufferForSwap;
+	try
+	{
+		canDataSwap(bufferForSwap, targetType, targetColumn);
+		//if success
+		swapRow(bufferForSwap, targetColumn);
+	}
+	catch (const std::exception&)
+	{
+		//deleting the buffer data because of a problem
+		int bufferSize = bufferForSwap.size();
+		for (size_t i = 0; i < bufferSize; i++)
+		{
+			delete[] bufferForSwap[i];
+		}
 	}
 }
 
@@ -349,23 +403,71 @@ void Table::getRowIndWithValue(unsigned searchColumn, const Data* searched, std:
 	}
 
 }
-void Table::swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows)
+//void Table::swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows)
+//{
+//	delete[]this->data[currIndex][targetColumn];
+//	if (currIndex > selectedRow)
+//	{
+//		currIndSelectedRows++;
+//	}
+//	else if (currIndex == selectedRow)
+//	{
+//		Data* resData = targetValue->clone();
+//		swap(this->data[currIndex][targetColumn], resData);
+//		currIndSelectedRows++;
+//	}
+//	else
+//	{
+//		Data* resData = targetValue->emptyClone();
+//		swap(this->data[currIndex][targetColumn], resData);
+//	}
+//}
+
+void Table::canDataSwap(std::vector<Data*>& bufferForSwap, const std::string& targetType, unsigned targetColumn)
 {
-	delete[]this->data[currIndex][targetColumn];
-	if (currIndex > selectedRow)
+	int rowsCount = this->data.size();
+	for (size_t i = 0; i < rowsCount; i++)
 	{
-		currIndSelectedRows++;
+		Data* swapData = nullptr;
+		swapData = this->data[i][targetColumn]->converTo(targetType.c_str()); //if throws it will be captured by the update or modify
+		bufferForSwap.push_back(swapData);
 	}
-	else if (currIndex == selectedRow)
+}
+void Table::canDataSwapWithSelect(std::vector<Data*>& bufferForSwap, const std::string& targetType, unsigned targetColumn, const std::vector<int>& indexSelectedRows, const Data* targetValue)
+{
+	int rowsCount = this->data.size();
+	int currIndSelectedRows = 0;
+	for (size_t i = 0; i < rowsCount; i++)
 	{
-		Data* swapData = targetValue->clone();
-		swap(this->data[currIndex][targetColumn], swapData);
-		currIndSelectedRows++;
+		Data* swapData = nullptr;
+		if (currIndSelectedRows < indexSelectedRows.size() && i == indexSelectedRows[currIndSelectedRows])
+		{
+			//for the selected rows
+			swapData = targetValue->clone();//could throw from not enough memory 
+			bufferForSwap.push_back(swapData);
+			currIndSelectedRows++;
+		}
+		else
+		{
+			//for convertion or default 
+			swapData = this->data[i][targetColumn]->converTo(targetType.c_str()); //if throws it will be captured by the update or modify
+			bufferForSwap.push_back(swapData);
+		}
 	}
-	else
+}
+void Table::swapRow(std::vector<Data*>& bufferForSwap, unsigned targetColumn)
+{
+	int rowsCount = this->data.size();
+	if (bufferForSwap.size() != rowsCount)
 	{
-		Data* swapData = targetValue->emptyClone();
-		swap(this->data[currIndex][targetColumn], swapData);
+		throw "Size doesnt match"; //from who will this be captured
+	}
+
+	for (size_t i = 0; i < rowsCount; i++)
+	{
+		delete[]this->data[i][targetColumn];
+		this->data[i][targetColumn] = nullptr;
+		swap(this->data[i][targetColumn], bufferForSwap[i]);
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////

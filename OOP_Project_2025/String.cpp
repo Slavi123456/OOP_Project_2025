@@ -161,43 +161,69 @@ bool MyString::operator!=(const Data* other) const
 
 Data* MyString::converTo(const char* wantedType) const
 {
-	if (strcmp(wantedType, "String"))
+	if (strcmp(wantedType, "String") == 0)
 	{
-		//??
+		return nullptr; //i am not sure if this is correct way to do it
 	}
 	std::string deformated = deformatString(this->str);
 	if (strcmp(wantedType, "Integer") == 0) //these names have to be in some kind of vector
 	{
+		if (isNull) //could this be moved in Data to be checked //no it comes with more overhead
+		{
+			return new Integer;
+		}
 		//i chose this instead of making Integer(std::string) because i don't want to have this ctor
 		if (canStringToNumericType(deformated)) //additional check 
 		{
 			std::vector<std::string> arg{ deformated };
 			int indArg = 0;
 			std::string type("Decimal");
-			return dataFactory(type, arg, indArg);
+
+			//could fail because of atoi
+			try
+			{
+				Data * res = dataFactory(type, arg, indArg); 
+				return res; //if its success return it
+			}
+			catch (...)
+			{
+				//if needed any logic
+			}
 		}
-		else
-		{
-			throw "Could't transform String to integer";
-		}
+		return new Integer;
 	}
 	else if (strcmp(wantedType, "Decimal") == 0)
 	{
-		
+		if (isNull)
+		{
+			return new Decimal;
+		}
+
 		if (canStringToNumericType(deformated)) //additional check 
 		{
 			std::vector<std::string> arg{ deformated };
 			int indArg = 0;
 			std::string type("Decimal");
-			return dataFactory(type, arg, indArg);
+			//could fail because of atoi or no memory
+			try
+			{
+				Data* res = dataFactory(type, arg, indArg);
+				return res; //if its success return it
+			}
+			catch (...)
+			{
+				//if needed any logic
+			}
 		}
-		else
-		{
-			throw "Could't transform String to integer";
-		}
+		return new Decimal;
 	}
 	else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
 	{
+		if (isNull)
+		{
+			return new Date;
+		}
+
 		if (canStringToDate(deformated)) //additional check 
 		{
 			//get the needed arguments for Date
@@ -206,18 +232,27 @@ Data* MyString::converTo(const char* wantedType) const
 			splitLineInWords(deformated, dateInfo, '/');
 			if (dateInfo.size() > 3)
 			{
-				throw "String has excesive information to be converted to Date";
+				return new Date;
+				//throw "String has excesive information to be converted to Date";
 			}
 
 			//create the new Object
 			std::string type("Date");
-			return dataFactory(type, dateInfo, indDateInfo);
+			//could fail because of atoi or Date creation or memory
+			try
+			{
+				Data* res = dataFactory(type, dateInfo, indDateInfo);
+				return res; //if its success return it
+			}
+			catch (...)
+			{
+				//if needed any logic
+			}
 		}
-		else
-		{
-			throw "Could't transform String to integer";
-		}
+		return new Date;
 	}
+
+
 	throw "Unsupported convertion";
 }
 

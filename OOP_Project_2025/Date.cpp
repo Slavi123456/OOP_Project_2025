@@ -3,7 +3,7 @@
 #include "String.hpp"
 #include "Integer.hpp"
 #include "Utils.hpp" //only for Leap Year its needed because Integer also use it
-
+#include "Decimal.hpp"
 
 static void dateToInteger(const Date* date, int& result) {
     result = 0;
@@ -112,17 +112,37 @@ bool Date::operator!=(const Data* other) const
 
 Data* Date::converTo(const char* wantedType) const
 {
+    if (strcmp(wantedType, "Date") == 0)
+    {
+        return nullptr; //i am not sure if this is correct way to do it
+    }
+
     if (strcmp(wantedType, "String") == 0)
     {
+        if (isNull)
+        {
+            return new MyString;
+        }
         std::string res = std::to_string(this->date) + "/" + std::to_string(this->month) + "/" + std::to_string(this->year);
         return new MyString(res);
     }
     else if (strcmp(wantedType, "Decimal") == 0)
     {
-        throw "Date to Decimal is not supported";
+        //there is no convertion between Date and Decimal
+        /*if (isNull)
+        {
+            return new Decimal;
+        }*/
+        return new Decimal;
+
+        //throw "Date to Decimal is not supported";
     }
     else if (strcmp(wantedType, "Integer") == 0)
     {
+        if (isNull)
+        {
+            return new Integer;
+        }
         int integer = 0;
         dateToInteger(this, integer);
         return new Integer(integer);

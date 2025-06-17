@@ -2,6 +2,7 @@
 #include <fstream>
 #include "Integer.hpp"
 #include "String.hpp"
+#include "Date.hpp"
 
 ////////////--Constructors--////////////
 Decimal::Decimal()
@@ -77,17 +78,31 @@ bool Decimal::operator!=(const Data* other) const
 
 Data* Decimal::converTo(const char* wantedType) const
 {
+    if (strcmp(wantedType, "Decimal") == 0)
+    {
+        return nullptr; //i am not sure if this is correct way to do it
+    }
+
     if (strcmp(wantedType, "String") == 0)
     {
+        if (isNull)
+        {
+            return new MyString;
+        }
         return new MyString(std::to_string(this->decimal));
     }
     else if (strcmp(wantedType, "Integer") == 0)
     {
+        if (isNull)
+        {
+            return new Integer;
+        }
         return new Integer((int)this->decimal);
     }
     else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
     {
-        throw "Cannot convert Decimal to Date";
+        return new Date;
+        //throw "Cannot convert Decimal to Date";
     }
 
     throw "Unsupported convertion";
