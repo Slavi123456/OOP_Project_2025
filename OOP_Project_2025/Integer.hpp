@@ -25,6 +25,9 @@ public:
 
 	bool operator==(const Data* other) const override;
 	bool operator!=(const Data* other) const override;
+
+	//have to implemented
+	Data* converTo(const char* wantedType) const override;
 	////////////////////////////////////
 };
 

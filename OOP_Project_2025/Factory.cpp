@@ -5,7 +5,10 @@
 #include "String.hpp"
 #include "Date.hpp"
 
+#include "Utils.hpp"
 
+
+/////////////////////////////////////////////////////////////////////
 Data* dataFactory(std::string& type, const std::vector<std::string>& value, int& startingInd)
 {
 	if (type.empty())
@@ -16,38 +19,63 @@ Data* dataFactory(std::string& type, const std::vector<std::string>& value, int&
 	{
 		throw "value string is empty";
 	}
-	Data* res = nullptr;
+
 	if (type == "Decimal") {
 		if (value[startingInd] == "NULL")
 		{ 
-			res = new Decimal(); //is there a better way to represent NULL value
+			return new Decimal(); //is there a better way to represent NULL value
 		}
 		else {
-			double val = atoi(value[startingInd].c_str()); //how to check if i got valid double
-			res = new Decimal(val); //wouldn't it be better to have constructor with string and from there throw
+			//double val = atoi(value[startingInd].c_str()); //how to check if i got valid double
+			//res = new Decimal(val); //wouldn't it be better to have constructor with string and from there throw
+			double res;
+			try
+			{
+				res = atoi(value[startingInd].c_str());
+			}
+			catch (...)
+			{
+				throw "Atoi failed to transform String to integer";
+			}
+			return new Decimal(res);
 		}
 	}
 	else if (type == "Integer")
 	{
 		if (value[startingInd] == "NULL")
 		{
-			res = new Integer();
+			return new Integer();
 		}
 		else
 		{
-			int val = atoi(value[startingInd].c_str()); //how to check if i got valid int
-			res = new Integer(val); //wouldn't it be better to have constructor with string and from there throw
+			if (canStringToNumericType(value[startingInd])) //additional check 
+			{
+				int val;
+				try
+				{
+					val = atoi(value[startingInd].c_str());
+				}
+				catch (...)
+				{
+					throw "Atoi failed to transform String to integer";
+				}
+				return new Integer(val);
+			}
+			else
+			{
+				throw "Could't transform String to integer";
+			}
 		}
 	}
 	else if (type == "String")
 	{
 		if (value[startingInd] == "NULL")
 		{
-			res = new MyString();
+			return new MyString();
 		}
 		else
 		{
-			res = new MyString(value[startingInd]); //wouldn't it be better to have constructor with string and from there throw
+			return new MyString(value[startingInd]); //wouldn't it be better to have constructor with string and from there throw
 		}
 	}
 
@@ -55,24 +83,31 @@ Data* dataFactory(std::string& type, const std::vector<std::string>& value, int&
 	{
 		if (value[startingInd] == "NULL")
 		{
-			res = new Date();
+			return new Date();
 		}
 		else
 		{
-			int date = atoi(value[startingInd].c_str()); 
-			startingInd++;
-			int month = atoi(value[startingInd].c_str()); 
-			startingInd++;
-			int year = atoi(value[startingInd].c_str()); 
-			res = new Date(date, month, year); //wouldn't it be better to have constructor with string and from there throw //no bc of desirializing
-		}
+			int date;
+			int month;
+			int year;
+			try
+			{
+				date = atoi(value[startingInd].c_str());
+				startingInd++;
+				month = atoi(value[startingInd].c_str());
+				startingInd++;
+				year = atoi(value[startingInd].c_str());
+			}
+			catch (...)
+			{
+				throw "Atoi failed to transform String to integer";
+			}
+			//wouldn't it be better to have constructor with string and from there throw //no bc of desirializing // and i choosed that way
+			return new Date(date, month, year);
+		}		
 	}
-
-	else
-	{
-		throw "unkown type";
-	}
-	return res;
+	
+	throw "Unsupported type for factory";
 
 }
 

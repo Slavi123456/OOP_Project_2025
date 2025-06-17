@@ -286,7 +286,227 @@ void testForAllTypes() {
 	tab.print();
 
 }
+void testTableUpdateStringToDate() {
+	Table tab;
+	tab.print();
+	Decimal dec(55.89);
+	Integer inte(3);
+	Integer inte1(5);
+	Date date(1, 2, 3000);
+	MyString str("12/3/1901");
 
+	
+	std::vector<Data*> vec{ &inte,&dec,&str };
+	std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+	tab.addLine(vec);
+	tab.addLine(vec1);
+	tab.addLine(vec);
+	tab.addLine(vec);
+	tab.addLine(vec1);
+	tab.addLine(vec1);
+
+	tab.print();
+
+	std::cout << std::endl;
+	std::cout << "Will change " << str.getName() << " to " << date.getName() << ": ";
+	date.print(std::cout);
+	std::cout << std::endl;
+	std::cout << "Only by rows which have " << inte.getName() << ": ";
+	inte.print(std::cout);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	
+	tab.update(0, &inte, 2, &date);
+	tab.print();
+}
+
+void testTableUpdateDecimalToDate() {
+
+	Table tab;
+	tab.print();
+	Decimal dec(55.89);
+	Integer inte(3);
+	Integer inte1(5);
+	Date date(1, 2, 3000);
+	MyString str("12/3/1901");
+
+
+	std::vector<Data*> vec{ &inte,&dec,&str };
+	std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+	tab.addLine(vec);
+	tab.addLine(vec1);
+	tab.addLine(vec);
+	tab.addLine(vec);
+	tab.addLine(vec1);
+	tab.addLine(vec1);
+
+	tab.print();
+
+	std::cout << std::endl;
+	std::cout << "Will change " << dec.getName() << " to " << date.getName() << ": ";
+	date.print(std::cout);
+	std::cout << std::endl;
+	std::cout << "Only by rows which have " << inte.getName() << ": ";
+	inte.print(std::cout);
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	tab.update(0, &inte, 1, &date);
+	tab.print();
+}
+void testStringConvertionToNumeric() {
+	MyString str("123\"4");
+	MyString str1("1234");
+
+	Data* intStr = nullptr;
+	Data* intStr1 = nullptr;
+	try
+	{
+		//success //it works with either Integer or Decimal
+		intStr1 = str1.converTo("Integer");
+		if (intStr1) intStr1->print(std::cout);
+		std::cout << std::endl;
+
+		//fail
+		intStr = str.converTo("Integer");
+		if (intStr) intStr->print(std::cout);
+	}
+	catch (...)
+	{
+		delete intStr;
+		delete intStr1;
+		std::cout << "Something happened";
+	}
+}
+void testStringToDate() {
+	MyString str("12/3/1901");
+	MyString str1("12/3/dsa");
+
+	Data* dateStr = nullptr;
+	Data* dateStr1 = nullptr;
+	try
+	{
+		//success 
+		dateStr = str.converTo("Date");
+		if (dateStr) dateStr->print(std::cout);
+		std::cout << std::endl;
+
+		//fail
+		dateStr1 = str1.converTo("Date");
+		if (dateStr1) dateStr1->print(std::cout);
+	}
+	catch (...)
+	{
+		delete dateStr;
+		delete dateStr1;
+		std::cout << "Something happened";
+	}
+}
+void testIntToOthers() {
+	Integer inte(4);
+	Data* inteDate = nullptr;
+	Data* inteStr = nullptr;
+	Data* inteDecimal = nullptr;
+
+	try
+	{
+		inteDate = inte.converTo("Date");
+		inteStr = inte.converTo("String");
+		inteDecimal = inte.converTo("Decimal");
+
+		inteDate->print(std::cout);
+		std::cout << std::endl;
+		inteStr->print(std::cout);
+		std::cout << std::endl;
+		inteDecimal->print(std::cout);
+		std::cout << std::endl;
+	}
+	catch (...)
+	{
+		delete inteDate;
+		delete inteDecimal;
+		delete inteStr;
+		std::cout << "Something happened";
+	}
+
+	delete inteDate;
+	delete inteDecimal;
+	delete inteStr;
+}
+void testDecimalToOthers() {
+
+	Decimal dece(4.8);
+	Data* deceDate = nullptr;
+	Data* deceStr = nullptr;
+	Data* deceInteger = nullptr;
+
+	try
+	{
+		//these should success
+		deceStr = dece.converTo("String");
+		std::cout << deceStr->getName() << " ";
+		deceStr->print(std::cout);
+		std::cout << std::endl;
+
+		deceInteger = dece.converTo("Integer");
+		std::cout << deceInteger->getName() << " ";
+		deceInteger->print(std::cout);
+		std::cout << std::endl;
+
+		//this should fail
+		deceDate = dece.converTo("Date");
+		std::cout << deceDate->getName() << " ";
+		deceDate->print(std::cout);
+		std::cout << std::endl;
+	}
+	catch (...)
+	{
+		delete deceDate;
+		delete deceInteger;
+		delete deceStr;
+		std::cout << "Something happened";
+	}
+}
+void testDateToOthers() {
+	Date date(26, 6, 2025);
+	std::cout << date.getName() << " ";
+	date.print(std::cout);
+	std::cout << std::endl;
+
+	Data* dateDecimal = nullptr;
+	Data* dateString = nullptr;
+	Data* dateInteger = nullptr;
+
+	try
+	{
+		//these should success
+		dateString = date.converTo("String");
+		std::cout << dateString->getName() << " ";
+		dateString->print(std::cout);
+		std::cout << std::endl;
+
+		dateInteger = date.converTo("Integer");
+		std::cout << dateInteger->getName() << " ";
+		dateInteger->print(std::cout);
+		std::cout << std::endl;
+
+		//this should fail
+		dateDecimal = date.converTo("Decimal");
+		std::cout << dateDecimal->getName() << " ";
+		dateDecimal->print(std::cout);
+		std::cout << std::endl;
+	}
+	catch (...)
+	{
+		delete dateDecimal;
+		delete dateString;
+		delete dateInteger;
+
+		std::cout << "Something happened";
+	}
+}
 
 int main()
 {
@@ -295,21 +515,8 @@ int main()
 	//testTableExport();
     //testTableSerAndDes("opit2.txt");
 	
-	Table tab;
-
-	Decimal dec(55.89);
-	Integer inte;
-	Date date(1, 2, 1900);
-	MyString str("13\"2\\1");
-	std::cout << std::endl;
-
-	std::vector<Data*> vec = { &dec, &inte, &str };
-	tab.addLine(vec);
-	tab.addLine(vec);
 	
-	tab.print();
-	tab.changeOneValue();
-	tab.print();
+	//testTableUpdateStringToDate();
 
 }
 

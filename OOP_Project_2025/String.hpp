@@ -23,8 +23,12 @@ public:
 
 	bool operator==(const Data* other) const override;
 	bool operator!=(const Data* other) const override;
+
+	Data* converTo(const char* wantedType) const override;
 	////////////////////////////////////
 private:
 	void formatString(std::string& str);
 	std::string deformatString(const std::string& str) const;
+
+	
 };

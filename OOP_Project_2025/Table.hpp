@@ -4,11 +4,14 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include "Utils.hpp"
 
 constexpr int DEFAULT_SPACING = 3; //does it have to be static to not be seen by other files ?
 constexpr int SPACING_FOR_FILES = 1;
 
-static void splitLineInWords(const std::string& line, std::vector<std::string>& words);
+
+template<typename T>
+static void swap(T& lhs, T&rhs);
 
 class Table {
 private:
@@ -33,7 +36,9 @@ public:
 	void writeToStream(std::ostream& os) const; //export
 	void readFromStream(std::istream& is); //that function here means: we have to create first Table through the default constructor //needs refactoring
 
-	void changeOneValue();
+	//void changeOneValue();
+
+	void update(unsigned indexColumn, const Data* value, unsigned targetColumn, const Data* targetValue); //update
 private:
 
 	void printRows(int start, int end) const;
@@ -43,6 +48,8 @@ private:
 	
 	int nextCappacityForVector(int currCap) const;
 	
+	void getRowIndWithValue(unsigned searchColumn, const Data* searched, std::vector<int>& indexSelectedRows); //can this throw
+	void swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows);
 	//will these be a good idea?
 	//int columnsCount() const;
 	//int rowsCount() const;

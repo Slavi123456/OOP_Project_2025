@@ -25,6 +25,8 @@ public:
 	bool isDataNull() const {
 		return isNull;
 	}
+
+	/////////////////////////////////////////////////////
 	//serialization and also printing to the cout stream
 	virtual void print(std::ostream& os) const = 0;
 
@@ -38,5 +40,11 @@ public:
 	//cant i make Template T getValue () and use it in the == instead of dynamic_cast
 	virtual bool operator==(const Data* other) const = 0; 
 	virtual bool operator!=(const Data* other) const = 0;
+
+	//also convert can be done by factory but its less scalable 
+	virtual Data* converTo(const char* wantedType) const = 0;
+	/////////////////////////////////////////////////////
+protected:
+	
 };
 

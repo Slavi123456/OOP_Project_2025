@@ -4,32 +4,12 @@
 #include "Integer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
-static void splitLineInWords(const std::string& line, std::vector<std::string>& words)
-{
-	if (line.empty())
-	{
-		throw "String of the line is empty";
-	}
 
-	std::string word;
-	int sizeLine = line.size();
-	for (size_t i = 0; i < sizeLine; i++) {
-		char c = line[i];
-		if (c == ' ') {
-			if (!word.empty()) {
-				words.push_back(word);
-				word.clear();
-			}
-		}
-		else {
-			word += c;
-		}
-	}
-
-	//checking for any left
-	if (!word.empty()) {
-		words.push_back(word);
-	}
+template<typename T>
+static void swap(T& lhs, T& rhs) {
+	T helper = lhs;
+	lhs = rhs;
+	rhs = helper;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -184,6 +164,10 @@ void Table::printTypes(std::ostream& os, int count) const
 
 void Table::select(unsigned indexColumn, const Data* value)
 {
+	if (!value)
+	{
+		throw "Cannot select by nullptr value";
+	}
 	if (this->data.size() <= 0)
 	{
 		throw "cannot do select before adding values";
@@ -195,16 +179,10 @@ void Table::select(unsigned indexColumn, const Data* value)
 	if (indexColumn >= this->data[0].size()) {
 		throw "indexcolumn is bigget then the table's column count";
 	}
-
-	int columnsCount = this->data[0].size(); 
+	
+	
 	std::vector<int> indexSelectedRows;
-	for (size_t i = 0; i < columnsCount; i++)
-	{
-		if (*value == data[i][indexColumn])
-		{
-			indexSelectedRows.push_back(i);
-		}
-	}
+	getRowIndWithValue(indexColumn, value, indexSelectedRows);
 
 	printSelectedRows(indexSelectedRows);
 }
@@ -233,12 +211,12 @@ void Table::readFromStream(std::istream& is) //refactoring!!!
 	std::getline(is, line); //can this throw??
 
 	std::vector<std::string> types;
-	splitLineInWords(line, types); //can this be changed to reading string till end of line //becuase stream >> string will skip the '\n'
+	splitLineInWords(line, types, ' '); //can this be changed to reading string till end of line //becuase stream >> string will skip the '\n'
 
 	while (std::getline(is, line)) //if it's with is.eof() it will make one cycle more for the eof symbol
 	{
 		std::vector<std::string> values;
-		splitLineInWords(line, values);
+		splitLineInWords(line, values, ' ');
 		
 		/*if (values.size() != types.size()) //this wont work from now on becuase the Date want 3arguments 
 		{
@@ -263,12 +241,90 @@ void Table::readFromStream(std::istream& is) //refactoring!!!
 	}
 }
 
-void Table::changeOneValue()
+void Table::update(unsigned indexColumn, const Data* value, unsigned targetColumn, const Data* targetValue)
 {
-	delete[]this->data[0][2];
-	Integer* inte = new Integer(1);
-	data[0][2] = inte;
+	if (!value)
+	{
+		throw "Cannot update by nullptr value";
+	}
+	if (!targetValue)
+	{
+		throw "Target value for update is nullptr";
+	}
+	if (this->data.size() <= 0)
+	{
+		throw "cannot do update before adding values";
+	}
+	if (this->data[0].empty())
+	{
+		throw "the table doesn't have any columns";
+	}
+	if (indexColumn >= this->data[0].size()) {
+		throw "indexcolumn is bigger then the table's column count";
+	}
+	if (targetColumn >= this->data[0].size()) {
+		throw "target column is bigger then the table's column count";
+	}
+
+	std::vector<int> indexSelectedRows;
+	getRowIndWithValue(indexColumn, value, indexSelectedRows);
+
+	int rowsCount = this->data.size();
+	int currIndSelectedRows = 0;
+	
+	//is this okay by project description
+	for (size_t i = 0; i < rowsCount; i++)
+	{
+		Data* swapData = nullptr;
+		//check if its in the selected rows
+		if (currIndSelectedRows < indexSelectedRows.size() && i == indexSelectedRows[currIndSelectedRows])
+		{
+			//for throwing from not enough memory
+			try
+			{
+				swapData = targetValue->clone();
+			}
+			catch (...)
+			{
+				throw "Couldn't update the target column";
+			}
+			currIndSelectedRows++;
+		}
+		else
+		{
+			//for throwing from a convertion problem
+			try
+			{
+				swapData = this->data[i][targetColumn]->converTo(targetValue->getName());
+			}
+			catch (...) 
+			{
+				//for throwing from not enough memory
+				try
+				{
+					//if not put default state
+					swapData = targetValue->emptyClone();
+				}
+				catch (...)
+				{
+					throw "Couldn't update the target column";
+				}
+			}
+		}
+		if (!swapData) throw "Couldn't assign value to swap in the update";
+
+		//delete it
+		delete[]this->data[i][targetColumn];
+		swap(this->data[i][targetColumn], swapData);
+	}
 }
+
+//void Table::changeOneValue()
+//{
+//	delete[]this->data[0][2];
+//	Integer* inte = new Integer(1);
+//	data[0][2] = inte;
+//}
 
 int Table::nextCappacityForVector(int currCap) const
 {
@@ -278,5 +334,38 @@ int Table::nextCappacityForVector(int currCap) const
 		res *= 2;
 	}
 	return res;
+}
+
+void Table::getRowIndWithValue(unsigned searchColumn, const Data* searched, std::vector<int>& indexSelectedRows)
+{
+	int rowsCount = this->data.size();
+
+	for (size_t i = 0; i < rowsCount; i++)
+	{
+		if (*searched == data[i][searchColumn])
+		{
+			indexSelectedRows.push_back(i);
+		}
+	}
+
+}
+void Table::swapData(unsigned currIndex, unsigned selectedRow, unsigned targetColumn, const Data* targetValue, int& currIndSelectedRows)
+{
+	delete[]this->data[currIndex][targetColumn];
+	if (currIndex > selectedRow)
+	{
+		currIndSelectedRows++;
+	}
+	else if (currIndex == selectedRow)
+	{
+		Data* swapData = targetValue->clone();
+		swap(this->data[currIndex][targetColumn], swapData);
+		currIndSelectedRows++;
+	}
+	else
+	{
+		Data* swapData = targetValue->emptyClone();
+		swap(this->data[currIndex][targetColumn], swapData);
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////

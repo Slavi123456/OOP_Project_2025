@@ -1,6 +1,12 @@
 #include "String.hpp"
+#include "Integer.hpp" //can this be a problem
+#include "Decimal.hpp"
+#include "Utils.hpp"
+#include "Date.hpp"
+#include "Factory.hpp"
 
 const std::vector<char> MyString::SPECIAL_SYMBOLS{ '\\', '\"' };
+
 ////////////--Constructors--////////////
 MyString::MyString(const std::string& str): 
 	Data(), str("")
@@ -67,7 +73,6 @@ void MyString::formatString(std::string& str)
 	str.insert(0, "\"");
 	str.push_back('\"');
 }
-
 //For this i used ChatGPT's help
 std::string MyString::deformatString(const std::string& input) const
 {
@@ -153,4 +158,67 @@ bool MyString::operator!=(const Data* other) const
 {
 	return !(this == other);;
 }
+
+Data* MyString::converTo(const char* wantedType) const
+{
+	if (strcmp(wantedType, "String"))
+	{
+		//??
+	}
+	std::string deformated = deformatString(this->str);
+	if (strcmp(wantedType, "Integer") == 0) //these names have to be in some kind of vector
+	{
+		//i chose this instead of making Integer(std::string) because i don't want to have this ctor
+		if (canStringToNumericType(deformated)) //additional check 
+		{
+			std::vector<std::string> arg{ deformated };
+			int indArg = 0;
+			std::string type("Decimal");
+			return dataFactory(type, arg, indArg);
+		}
+		else
+		{
+			throw "Could't transform String to integer";
+		}
+	}
+	else if (strcmp(wantedType, "Decimal") == 0)
+	{
+		
+		if (canStringToNumericType(deformated)) //additional check 
+		{
+			std::vector<std::string> arg{ deformated };
+			int indArg = 0;
+			std::string type("Decimal");
+			return dataFactory(type, arg, indArg);
+		}
+		else
+		{
+			throw "Could't transform String to integer";
+		}
+	}
+	else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
+	{
+		if (canStringToDate(deformated)) //additional check 
+		{
+			//get the needed arguments for Date
+			std::vector<std::string> dateInfo;
+			int indDateInfo = 0;
+			splitLineInWords(deformated, dateInfo, '/');
+			if (dateInfo.size() > 3)
+			{
+				throw "String has excesive information to be converted to Date";
+			}
+
+			//create the new Object
+			std::string type("Date");
+			return dataFactory(type, dateInfo, indDateInfo);
+		}
+		else
+		{
+			throw "Could't transform String to integer";
+		}
+	}
+	throw "Unsupported convertion";
+}
+
 

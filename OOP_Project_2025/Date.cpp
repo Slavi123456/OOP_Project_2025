@@ -1,5 +1,34 @@
 #include "Date.hpp"
 #include <iostream>
+#include "String.hpp"
+#include "Integer.hpp"
+#include "Utils.hpp" //only for Leap Year its needed because Integer also use it
+
+
+static void dateToInteger(const Date* date, int& result) {
+    result = 0;
+    const int dayInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+    result += date->getDay();
+
+    int month = date->getMonth();
+    //adding the month
+    for (size_t i = 0; i < month - 1; i++)
+    {
+        if (i == 1 && isLeapYear(date->getYear())) //february leap year
+        {
+            result += 29;
+            continue;
+        }
+        result += dayInMonth[i];
+    }
+
+    int year = date->getYear();
+    //adding the year
+    for (int y = 1900; y < year; ++y) {
+        result += isLeapYear(y) ? 366 : 365;
+    }
+
+}
 
 ////////////--Constructors--////////////
 
@@ -19,17 +48,17 @@ Date::Date(int date, int month, int year):
 
 bool Date::isDateValid()
 {
-    return this->date > 0 && this->date < 32;
+    return this->date >= STARTING_DATE && this->date <= MAX_DATE;
 }
 
 bool Date::isMonthValid()
 {
-    return this->month > 0 && this->month < 13;
+    return this->month >= STARTING_MONTH && this->month <= MAX_MONTH;
 }
 
 bool Date::isYearValid()
 {
-    return this->year >= 1900;
+    return this->year >= STARTING_YEAR;
 }
 
 ////////////--From Data--////////////
@@ -78,5 +107,41 @@ bool Date::operator==(const Data* other) const
 bool Date::operator!=(const Data* other) const
 {
     return !(this == other);
+}
+
+
+Data* Date::converTo(const char* wantedType) const
+{
+    if (strcmp(wantedType, "String") == 0)
+    {
+        std::string res = std::to_string(this->date) + "/" + std::to_string(this->month) + "/" + std::to_string(this->year);
+        return new MyString(res);
+    }
+    else if (strcmp(wantedType, "Decimal") == 0)
+    {
+        throw "Date to Decimal is not supported";
+    }
+    else if (strcmp(wantedType, "Integer") == 0)
+    {
+        int integer = 0;
+        dateToInteger(this, integer);
+        return new Integer(integer);
+    }
+    
+
+    throw "Unsupported convertion";
+}
+
+int Date::getDay() const
+{
+    return this->date;
+}
+int Date::getMonth() const
+{
+    return this->month;
+}
+int Date::getYear() const
+{
+    return this->year;
 }
 

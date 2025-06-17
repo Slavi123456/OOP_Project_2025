@@ -1,5 +1,7 @@
 #include "Decimal.hpp"
 #include <fstream>
+#include "Integer.hpp"
+#include "String.hpp"
 
 ////////////--Constructors--////////////
 Decimal::Decimal()
@@ -71,5 +73,23 @@ bool Decimal::operator==(const Data* other) const
 bool Decimal::operator!=(const Data* other) const
 {
     return !(this == other);
+}
+
+Data* Decimal::converTo(const char* wantedType) const
+{
+    if (strcmp(wantedType, "String") == 0)
+    {
+        return new MyString(std::to_string(this->decimal));
+    }
+    else if (strcmp(wantedType, "Integer") == 0)
+    {
+        return new Integer((int)this->decimal);
+    }
+    else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
+    {
+        throw "Cannot convert Decimal to Date";
+    }
+
+    throw "Unsupported convertion";
 }
 ////////////----////////////

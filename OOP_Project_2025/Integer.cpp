@@ -1,6 +1,31 @@
 #include "Integer.hpp"
 #include <fstream>
+#include "String.hpp"
+#include "Decimal.hpp"
+#include "Date.hpp"
+#include "Utils.hpp" //if its only for isLeapYear, is it worth?
 
+
+//this is from 1/1/1900
+static void integerToDate(int integer, int& date, int& month, int& year) {
+
+	int maxDaysInYear = 365;
+	while (true) {
+		int daysInYear = isLeapYear(year) ? 366 : 365;
+		if (integer < daysInYear) break;
+		integer -= daysInYear;
+		++year;
+	}
+
+	const int dayInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+	for (size_t i = 0; i < 12; i++)
+	{
+		if (integer < dayInMonth[i]) break;
+		integer -= dayInMonth[i];
+		++month;
+	}
+	date = (integer == 0 ? 1 : integer);
+}
 ////////////--Constructors--////////////
 
 Integer::Integer(int integer): Data()
@@ -15,7 +40,6 @@ void Integer::setData(int data)
     this->integer = data;
     this->isNull = false;
 }
-
 int Integer::getValue() const
 {
     return integer;
@@ -68,5 +92,27 @@ bool Integer::operator==(const Data* other) const
 bool Integer::operator!=(const Data* other) const
 {
     return !(this == other);
+}
+
+Data* Integer::converTo(const char* wantedType) const
+{
+	if (strcmp(wantedType, "String") == 0)
+	{
+		return new MyString(std::to_string(this->integer));
+	}
+	else if (strcmp(wantedType, "Decimal") == 0)
+	{
+		return new Decimal((double)this->integer);
+	}
+	else if (strcmp(wantedType, "Date") == 0) //format for string to be date: %/%/%
+	{
+        int date = STARTING_DATE;
+        int month = STARTING_MONTH;
+        int year = STARTING_YEAR;
+		integerToDate(this->integer, date, month, year);
+		return new Date(date, month, year);
+	}
+
+	throw "Unsupported convertion";
 }
 ////////////----////////////
