@@ -177,7 +177,7 @@ Data* MyString::converTo(const char* wantedType) const
 		{
 			std::vector<std::string> arg{ deformated };
 			int indArg = 0;
-			std::string type("Decimal");
+			std::string type(wantedType);
 
 			//could fail because of atoi
 			try
@@ -203,7 +203,7 @@ Data* MyString::converTo(const char* wantedType) const
 		{
 			std::vector<std::string> arg{ deformated };
 			int indArg = 0;
-			std::string type("Decimal");
+			std::string type(wantedType);
 			//could fail because of atoi or no memory
 			try
 			{
@@ -237,7 +237,7 @@ Data* MyString::converTo(const char* wantedType) const
 			}
 
 			//create the new Object
-			std::string type("Date");
+			std::string type(wantedType);
 			//could fail because of atoi or Date creation or memory
 			try
 			{

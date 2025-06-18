@@ -2,15 +2,9 @@
 //#include <cmath> //in the standart library there is abs
 #include "Factory.hpp"
 #include "Integer.hpp"
-
+#include "Utils.hpp" //for swap
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-static void swap(T& lhs, T& rhs) {
-	T helper = lhs;
-	lhs = rhs;
-	rhs = helper;
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 //it's needed because we hold pointers which have to be deleted
@@ -373,6 +367,200 @@ void Table::modify(unsigned targetColumn, const std::string& targetType)
 	}
 }
 
+void Table::deleteSelectedRows(unsigned searchColumn, const Data* searchValue)
+{
+	if (!searchValue || searchColumn > this->data[0].size())
+	{
+		throw "Cannot do delete operation because of the search Value and search Column";
+	}
+
+	std::vector<int> indexSelectedRows;
+	getRowIndWithValue(searchColumn, searchValue, indexSelectedRows);
+	if (indexSelectedRows.empty())
+	{
+		return;
+	}
+	//std::vector<std::vector<Data*>> backupRows; //that will initialize with nullptr right?
+	//int countSuccededRowsDeletes = 0;
+	//int countSucceededColumnDeletes = 0;
+	//try
+	//{
+	//	//firstly make back of the selected rows
+	//	int sizeSelectedRows = indexSelectedRows.size();
+	//	for (size_t i = 0; i < sizeSelectedRows; i++)
+	//	{
+	//		std::vector<Data*> row;
+	//		int columnSize = this->data[0].size(); //should be equal for every one
+	//		for (size_t c = 0; c < columnSize; c++)
+	//		{
+	//			row.push_back(this->data[i][c]->clone());
+	//		}
+	//		backupRows.push_back(std::move(row));
+	//	}
+
+	//	//try to delete row
+	//	for (size_t i = 0; i < sizeSelectedRows; i++)
+	//	{
+	//		int columnSize = this->data[0].size(); //should be equal for every one
+	//		for (size_t c = 0; c < columnSize; c++)
+	//		{
+	//			delete[] this->data[i][c]; //if this fails
+	//			countSucceededColumnDeletes++;
+	//		}
+	//		countSucceededColumnDeletes = 0;
+	//		countSuccededRowsDeletes++;
+	//	}
+
+	//	int dataRowsSize = this->data.size();
+	//	int indexSelectedRow = 0;
+	//	int indForTraveresed = indexSelectedRows[indexSelectedRow];
+	//	//shift the undeleted
+	//	for (size_t i = indexSelectedRows[indexSelectedRow]; i < dataRowsSize; i++)
+	//	{
+	//		if (indexSelectedRow < sizeSelectedRows && i == indexSelectedRows[indexSelectedRow])
+	//		{
+	//			indexSelectedRow++;
+	//			continue;
+	//		}
+	//		if (indForTraveresed != i)
+	//		{
+	//			this->data[indexSelectedRow] = std::move(this->data[i]); //but this doesnt makes
+	//			indForTraveresed = i;
+	//		}
+	//	}
+
+	//	//shrinking
+	//	this->data.resize(dataRowsSize - indexSelectedRows.size());
+	//}
+	//catch (...)
+	//{
+	//	//restore the back up for the deleted rows
+	//	for (size_t i = 0; i < countSuccededRowsDeletes; i++)
+	//	{
+	//		//copy from the back up
+	//		this->data[indexSelectedRows[i]] = backupRows[i]; //can this be made by move
+	//	}
+
+	//	//restore from the back up if its midRow 
+	//	for (size_t i = 0; i < countSuccededRowsDeletes; i++)
+	//	{
+	//		//copy from the back up
+	//		this->data[indexSelectedRows[countSuccededRowsDeletes - 1]][i] = backupRows[countSuccededRowsDeletes - 1][i]; //can this be made by move
+	//	}
+	//}
+	////clearing the back up
+	//int rowsCount = backupRows.size();
+	//for (size_t i = 0; i < rowsCount; i++)
+	//{
+	//	int columsCount = backupRows[i].size();
+	//	for (size_t c = 0; c < columsCount; c++)
+	//	{
+	//		delete[] backupRows[i][c];
+	//	}
+	//}
+	std::vector<std::vector<Data*>> backupRows; //that will initialize with nullptr right? //no default values
+	int indexColumnFail = -1;
+	int indexRowFail = -1;
+
+	int columnSize = this->data[0].size(); //should be equal for every row
+	try
+	{
+		int sizeSelectedRows = indexSelectedRows.size();
+		//firstly make back of the selected rows
+		copySpecificRows(indexSelectedRows, backupRows);
+
+		//try to delete row
+		for (size_t i = 0; i < sizeSelectedRows; i++)
+		{
+			for (size_t c = 0; c < columnSize; c++)
+			{
+				delete this->data[indexSelectedRows[i]][c];
+				this->data[indexSelectedRows[i]][c] = nullptr; //for operator = move
+
+				//saving the last success
+				indexRowFail = i;
+				indexColumnFail = c + 1;
+			}
+		}
+
+		int dataRowsSize = this->data.size();
+		int indToDelete = 0;
+		int indForTraveresed = indexSelectedRows[indToDelete];
+		//shift the undeleted
+		for (size_t i = indexSelectedRows[indToDelete]; i < dataRowsSize; i++)
+		{
+			if (indToDelete < sizeSelectedRows && i == indexSelectedRows[indToDelete]) //if its in the selectedRows skip it
+			{
+				indToDelete++;
+				continue;
+			}
+			if (indForTraveresed != i) //after skipped selected Rows move the next one to it
+			{
+				this->data[indForTraveresed] = std::move(this->data[i]);
+			}
+			indForTraveresed++;
+		}
+
+		//shrinking
+		this->data.resize(dataRowsSize - sizeSelectedRows);
+	}
+	catch (...)
+	{
+		//bool partialFailure = indexRowFail != -1 && indexColumnFail != columnSize;
+
+		////restore the back up for the deleted rows
+		//for (size_t i = 0; i < indexRowFail; i++)
+		//{
+		//	//copy from the back up
+		//	matrix[indexSelectedRows[i]] = std::move(backupRows[i]);
+		//}
+
+		////restore from the back up if its midRow 
+		//for (size_t i = 0; i < indexColumnFail; i++)
+		//{
+		//	//copy from the back up
+		//	matrix[indexSelectedRows[countSuccededRowsDeletes - 1]][i] = std::move(backupRows[- 1][i]); 
+		//}
+		if (indexRowFail == -1)
+		{
+			//do nothing
+		}
+		else
+		{
+			bool isPartialColumn = (indexColumnFail != 0 && indexColumnFail != columnSize); //checks if the failed is first one of a row
+			int restoreRows = isPartialColumn ? indexRowFail : indexRowFail + 1; //+1 for the cycle later
+
+			// Restore full rows
+			for (int i = 0; i < restoreRows; i++) {
+				this->data[indexSelectedRows[i]] = std::move(backupRows[i]);
+			}
+
+			// Restore partially failed row
+			if (isPartialColumn) {
+				int failedMatrixRow = indexSelectedRows[indexRowFail];
+				for (int c = 0; c < indexColumnFail; c++) {
+					swap(this->data[failedMatrixRow][c], backupRows[indexRowFail][c]); //why does it not work with operator = std::move()
+				}
+				// Delete remaining backup cells
+				/*for (size_t c = indexColumnFail; c < backupRows[indexRowFail].size(); c++) {
+					delete backupRows[indexRowFail][c];
+					backupRows[indexRowFail][c] = nullptr;
+				}*/
+			}
+		}
+	}
+	//clearing the back up
+	int rowsCount = backupRows.size();
+	for (size_t i = 0; i < rowsCount; i++)
+	{
+		int columsCount = backupRows[i].size();
+		for (size_t c = 0; c < columsCount; c++)
+		{
+			delete backupRows[i][c];
+		}
+	}
+}
+
 //void Table::changeOneValue()
 //{
 //	delete[]this->data[0][2];
@@ -468,6 +656,20 @@ void Table::swapRow(std::vector<Data*>& bufferForSwap, unsigned targetColumn)
 		delete[]this->data[i][targetColumn];
 		this->data[i][targetColumn] = nullptr;
 		swap(this->data[i][targetColumn], bufferForSwap[i]);
+	}
+}
+void Table::copySpecificRows(const std::vector<int> selectedRows, std::vector<std::vector<Data*>> bufferForCopyRows)
+{
+	int sizeSelectedRows = selectedRows.size();
+	int dataCountColumns = this->data[0].size();
+	for (size_t i = 0; i < sizeSelectedRows; i++)
+	{
+		std::vector<Data*> row;
+		for (size_t c = 0; c < dataCountColumns; c++)
+		{
+			row.push_back(this->data[selectedRows[i]][c]->clone());
+		}
+		bufferForCopyRows.push_back(std::move(row));
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////

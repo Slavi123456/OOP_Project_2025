@@ -16,10 +16,10 @@ protected:
 public:
 	
 	Data() = default;
-	Data(const Data& other) = default;
-	Data(Data&& other) = default;
-	Data& operator=(const Data& other) = default;
-	Data& operator=(Data&& other) = default;
+	//Data(const Data& other) = default;
+	//Data(Data&& other) = default;
+	//Data& operator=(const Data& other) = default;
+	//Data& operator=(Data&& other) = default;
 	virtual ~Data() = default;
 
 	bool isDataNull() const {

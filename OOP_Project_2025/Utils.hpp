@@ -8,3 +8,15 @@ bool canStringToNumericType(const std::string& str);
 bool canStringToDate(const std::string& str);
 
 bool isLeapYear(int year);
+
+
+template<typename T>
+static void swap(T& lhs, T& rhs);
+
+template<typename T>
+void swap(T& lhs, T& rhs)
+{
+	T helper = lhs;
+	lhs = rhs;
+	rhs = helper;
+}
