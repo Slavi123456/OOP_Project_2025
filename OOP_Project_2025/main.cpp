@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "data.hpp"
 #include "integer.hpp"
@@ -8,6 +7,7 @@
 #include <string>
 #include "date.hpp"
 #include "String.hpp"
+#include "DataBase.hpp"
 
 ///////////===testTypes===////////////
 void testInteger() {
@@ -77,7 +77,7 @@ void testDataString() {
 }
 
 void testForAllTypes() {
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 
 	Decimal dec(55.89);
@@ -252,9 +252,40 @@ void testDateToOthers() {
 	}
 }
 
+///////////===Test table's constructors===////////////
+void testTableCopyConstructor() {
+	//testing Table copyContructor
+	Table tab(std::string("tab"));
+
+	Decimal dec(55.89);
+	Date date(1, 2, 3000);
+	MyString str("123\"4");
+
+	std::vector<Data*> vec{ &dec, &date, &str }; //this works only because its a test
+
+	tab.addLine(vec);
+
+	Table tab1(tab);
+
+	std::cout << "Tab: " << std::endl;
+	tab.print();
+
+	std::cout << "Tab1: " << std::endl;
+	tab1.print();
+
+	std::cout << "Tab after update: " << std::endl;
+	tab.update(0, &dec, 1, &str);
+	tab.print();
+	//tab.update(0, &dec, 1, &date); ??
+
+	std::cout << "Tab1: " << std::endl;
+	tab1.print();
+
+}
+
 ///////////===Test table's functionality===////////////
 void testTableAdd_Print() {
-	Table tab;
+	Table tab(std::string("tab"));
 
 	Decimal dec(55.89);
 	std::vector<Data*> vec;
@@ -265,7 +296,7 @@ void testTableAdd_Print() {
 	tab.print();
 }
 void testTableAddColumn() {
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 
 	Decimal dec(55.89);
@@ -286,13 +317,16 @@ void testTableAddColumn() {
 	tab.print();
 }
 void testTableRPN_Print() {
-	Table tab;
+	Table tab(std::string("tab"));
 	//tab.addData(Decimal(55.89), 0);
 	//tab.addData(Integer(4), 1);
 	//tab.addData(Integer(), 1);
 	Decimal dec(55.89);
 	Integer inte;
 	Integer inte2(4);
+	Integer inte3(5);
+	Integer inte4(6);
+	Integer inte5(7);
 
 	std::vector<Data*> vec;
 	vec.push_back(&dec);
@@ -300,15 +334,21 @@ void testTableRPN_Print() {
 	vec.push_back(&inte2);
 
 	tab.addLine(vec);
+	vec[2] = &inte2;
 	tab.addLine(vec);
+	vec[2] = &inte3;
 	tab.addLine(vec);
+	vec[2] = &inte4;
 	tab.addLine(vec);
+	vec[2] = &inte5;
 	tab.addLine(vec);
 
+	tab.print();
+	std::cout << "Now RPN print: " << std::endl;
 	tab.print(2);
 }
 void testTablePrint_Types() {
-	Table tab;
+	Table tab(std::string("tab"));
 	std::cout << "Table types: ";
 	tab.printTypes(std::cout);
 
@@ -329,7 +369,7 @@ void testTablePrint_Types() {
 	tab.printTypes(std::cout);
 }
 void testTableSelect() {
-	Table tab;
+	Table tab(std::string("tab"));
 
 	Decimal dec(55.89);
 	Decimal dec1(432.5);
@@ -360,7 +400,7 @@ void testTableSelect() {
 }
 
 void testTableExport(const std::string& fileName) {
-	Table tab;
+	Table tab(std::string("tab"));
 
 	Decimal dec(55.89);
 	Integer inte;
@@ -381,7 +421,7 @@ void testTableExport(const std::string& fileName) {
 	tab.writeToStream(os);
 }
 void testTableDesirialization(const std::string& fileName){
-	Table tab;
+	Table tab(std::string("tab"));
 	
 	std::ifstream is(fileName);
 	if (!is) {
@@ -398,7 +438,7 @@ void testTableSerAndDes(const std::string& fileName) {
 }
 
 void testTableUpdateStringToDate() {
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 	Decimal dec(55.89);
 	Integer inte(3);
@@ -433,7 +473,7 @@ void testTableUpdateStringToDate() {
 }
 void testTableUpdateDecimalToDate() {
 
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 	Decimal dec(55.89);
 	Integer inte(3);
@@ -467,7 +507,7 @@ void testTableUpdateDecimalToDate() {
 	tab.print();
 }
 void testTableModify() {
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 
 	Decimal dec(55.89);
@@ -501,7 +541,7 @@ void testTableModify() {
 }
 
 void testTableDelete() {
-	Table tab;
+	Table tab(std::string("tab"));
 	tab.print();
 	Decimal dec(55.89);
 	Integer inte(3);
@@ -784,22 +824,445 @@ void testTestDelete() {
 	deleteMatrixOfData(matrix);
 }
 ///////////////////////////////////////////////////////////////////////////
+//how exceptions should be tested ??
+void testDBshowtables() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		//db.setFilePath(filePath); this should fail
+
+		filePath = "db.txt";
+		db.setFilePath(filePath); //this should not fail
+
+		///////////////////////////////////
+		//create some tables
+		Table tab(std::string("tab"));
+		Table tab1(std::string("tab1"));
+
+		Decimal dec(55.89);
+		Date date(1, 2, 3000);
+		MyString str("123\"4");
+
+		std::vector<Data*> vec{ &dec, &date, &str };
+
+		tab.addLine(vec);
+
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+
+
+		db.addTable(tab);
+		db.addTable(tab1);
+
+		/*Table tab2(tab1); 
+		db.addTable(&tab2);*/ //should throw
+
+		db.showTables();
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBprints() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		std::string filePath;
+		//db.setFilePath(filePath); this should fail
+
+		filePath = "db.txt";
+		db.setFilePath(filePath); //this should not fail
+
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab1(tableName);
+
+		Decimal dec(55.89);
+		Date date(1, 2, 3000);
+		MyString str("123\"4");
+
+		std::vector<Data*> vec{ &dec, &date, &str };
+
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+
+		db.addTable(tab1);
+		db.print(tableName);
+		db.print(tableName, 3);
+
+
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBexport() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab1(tableName);
+
+		Decimal dec(55.89);
+		Date date(1, 2, 3000);
+		MyString str("123\"4");
+
+		std::vector<Data*> vec{ &dec, &date, &str };
+
+		tab1.addLine(vec);
+		tab1.addLine(vec);
+
+		db.addTable(tab1);
+		db.print(tableName);
+
+		std::string filePath("db.txt");
+		db.exportTable(tableName, filePath);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBSelect() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab(tableName);
+
+		Decimal dec(55.89), dec1(432.5), dec2(4654.5);
+		Integer inte1, inte2(2), inte3(3), inte4(4), inte5(5);
+
+		std::vector<Data*> vec = { &dec, &inte1, &inte2 };
+		std::vector<Data*> vec2 = { &dec2, &inte4, &inte5 };
+		std::vector<Data*> vec3 = { &dec1, &inte3, &inte2 };
+
+		tab.addLine(vec);
+		tab.addLine(vec2);
+		tab.addLine(vec3);
+
+		db.addTable(tab);
+		db.print(tableName);
+
+		std::cout << std::endl << "Selection by third column for Integer(3)" << std::endl;
+		db.select(2, &inte3, tableName);
+
+		std::cout << std::endl << "Selection by second column for Null" << std::endl;
+		db.select(1, &inte1, tableName);
+
+		std::cout << std::endl << "Selection by third column for Integer(2)" << std::endl;
+		db.select(2, &inte2, tableName);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+
+}
+void testDBmodify() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab(tableName);
+
+		Decimal dec(55.89);
+		Date date(1, 2, 3000);
+		MyString str("1234");
+		MyString str1("12/34");
+
+		std::vector<Data*> vec{ &dec, &date, &str };
+		tab.addLine(vec);
+		tab.addLine(vec);
+		vec[2] = &str1;
+		tab.addLine(vec);
+
+		db.addTable(tab);
+		db.print(tableName);
+		/////////////////the modify
+		std::cout << std::endl << "Now this is the modified version of the table where String -> Int" << std::endl << std::endl;
+
+		std::string inte("Integer");
+		db.modify(2, inte, tableName);
+		db.print(tableName);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBaddColumn() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab(tableName);
+
+		Decimal dec(55.89);
+		Date date(1, 2, 3000);
+		MyString str("1234");
+		MyString str1("12/34");
+
+		std::vector<Data*> vec{ &dec, &date, &str };
+		tab.addLine(vec);
+		tab.addLine(vec);
+		vec[2] = &str1;
+		tab.addLine(vec);
+
+		db.addTable(tab);
+		db.print(tableName);
+		/////////////////action/////////////////
+		Integer inte(4);
+		std::string columnName("age"); //it doesn't do anything for now
+		db.addColumn(columnName, &inte, tableName);
+		/////////////////action/////////////////
+
+		std::cout << "=============After adding column Integer=============" << std::endl;
+		db.print(tableName);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+
+}
+void testDBupdate() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab(tableName);
+		tab.print();
+		Decimal dec(55.89);
+		Integer inte(3);
+		Integer inte1(5);
+		Date date(1, 2, 3000);
+		MyString str("12/3/1901");
+
+
+		std::vector<Data*> vec{ &inte,&dec,&str };
+		std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+		tab.addLine(vec);
+		tab.addLine(vec1);
+		tab.addLine(vec);
+		tab.addLine(vec);
+		tab.addLine(vec1);
+		tab.addLine(vec1);
+
+		db.addTable(tab);
+		db.print(tableName);
+		/////////////////action/////////////////
+		std::cout << std::endl << "Will change " << str.getName() << " to " << date.getName() << ": ";
+		date.print(std::cout);
+		std::cout << std::endl << "Only by rows which have " << inte.getName() << ": ";
+		inte.print(std::cout);
+		std::cout << std::endl << std::endl;
+
+		db.update(0, &inte, 2, &date, tableName);
+		/////////////////action/////////////////
+
+		std::cout << "=============After update=============" << std::endl;
+		db.print(tableName);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBdelete() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some tables
+		std::string tableName("tab1");
+		Table tab(tableName);
+
+		Decimal dec(55.89);
+		Integer inte(3);
+		Integer inte1(5);
+		Date date(1, 2, 3000);
+		MyString str("12/3/1901");
+
+		std::vector<Data*> vec{ &inte,&dec,&str };
+		std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+		tab.addLine(vec);
+		tab.addLine(vec1);
+		tab.addLine(vec);
+		tab.addLine(vec);
+		tab.addLine(vec1);
+		tab.addLine(vec1);
+
+		db.addTable(tab);
+		db.print(tableName);
+		/////////////////action/////////////////
+		int wantedColumn = 0;
+		std::cout << std::endl << std::endl << "Will delete rows which have " << inte.getName() << ": ";
+		inte.print(std::cout);
+		std::cout << " on column " << wantedColumn << std::endl << std::endl;
+
+		db.deleteTableRows(wantedColumn, &inte, tableName);
+		/////////////////action/////////////////
+
+		std::cout << "=============After delete=============" << std::endl;
+		db.print(tableName);
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBinsert() 
+{
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some data
+		Decimal dec(55.89);
+		Integer inte(3);
+		Integer inte1(5);
+		Date date(1, 2, 3000);
+		MyString str("12/3/1901");
+
+		std::vector<Data*> vec{ &inte,&dec,&str };
+		std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+		std::string tableName("tab");
+		std::string tableName1("tab1");
+		/////////////////action/////////////////
+		std::cout << "//////////////////////////////////////////////" << std::endl;
+		std::cout << "Inserting line in \"" << tableName << "\"" << std::endl;
+		db.insert(vec, tableName);
+		db.print(tableName);
+
+		std::cout << "//////////////////////////////////////////////" << std::endl;
+		std::cout << "Inserting line in \"" << tableName << "\"" << std::endl;
+		db.insert(vec1, tableName);
+		db.print(tableName);
+		///////////////////////////
+		std::cout << "//////////////////////////////////////////////" << std::endl;
+		std::cout << "Inserting line in \"" << tableName1 << "\"" << std::endl;
+		db.insert(vec1, tableName1);
+		db.print(tableName1);
+
+		db.insert(vec1, tableName1);
+		db.insert(vec1, tableName1);
+		std::cout << "//////////////////////////////////////////////" << std::endl;
+		std::cout << "After some inserting \"" << tableName1 << "\"" << std::endl;
+		db.print(tableName1);
+		/////////////////action/////////////////
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
+void testDBloadAndSave() {
+	std::string filePath;
+	Database db(filePath);
+	try
+	{
+		///////////////////////////////////
+		//create some data
+		Decimal dec(55.89);
+		Integer inte(3);
+		Integer inte1(5);
+		Date date(1, 2, 3000);
+		MyString str("12/3/1901");
+
+		std::vector<Data*> vec{ &inte,&dec,&str };
+		std::vector<Data*> vec1{ &inte1,&dec,&str };
+
+		std::string tableName("tab");
+		std::string tableName1("tab1");
+
+		db.insert(vec, tableName);
+		db.insert(vec1, tableName);
+
+		db.insert(vec1, tableName1);
+		db.insert(vec1, tableName1);
+		db.insert(vec1, tableName1);
+
+		db.printAllTables();
+		std::string filePath("dbSer.txt");
+		db.saveAs(filePath);
+
+		std::cout << "===========Loading on db2===========" << std::endl;
+		std::string filePath2;
+		Database db2(filePath2);
+		db2.load(filePath);
+		db2.printAllTables();
+	}
+	catch (const char* exp) {
+		std::cout << exp << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what();
+	}
+}
 
 int main()
 {
-	//testTableAdd_Print();
-	//testTableRPN_Print();
-	//testTableExport();
-    //testTableSerAndDes("opit2.txt");
-	
-	
-	//testTableUpdateDecimalToDate();
-	//testTableModify();
-	
-	//testTestDelete();
-	
-	
-	
+	//testDBexport();
+	/*std::string fileName("opit2.txt");
+	testTableSerAndDes(fileName);*/
+
 	return 0;	
 }
 

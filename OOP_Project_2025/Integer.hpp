@@ -16,6 +16,7 @@ public:
 	////////////--From Data--////////////	
 	//Serialization
 	void print(std::ostream& os) const override;
+	void read(std::istream& is) override;
 	
 	const char* getName() const override;
 	//std::string getData() const override;

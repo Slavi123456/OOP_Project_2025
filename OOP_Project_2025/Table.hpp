@@ -17,10 +17,26 @@ private:
 	std::string name;
 	std::vector<std::vector<Data*>> data;
 public:
-	Table() = default;
+	///////===constructors===///////
+	//Table() = default; //cannot have this because of the desirialization of empty string
+	Table(const std::string& name);
+	Table(std::string&& name); //for testing purposes
+	
+	//Big six //because data is holding Data*
+	Table(const Table& other);
+	//Table(Table&& other) = delete;
+	Table& operator=(const Table&& other) = delete;
+	Table& operator=(Table&& other) = delete;
 	//Table(int rows,int colums);
 	~Table();
 	
+	///////===needed fucntions===///////
+	
+
+	std::string getName()const; //this makes a copy of it, could it be better if it's const char*
+	
+	bool isEmpty() const;
+	///////===functionality===///////
 	void addLine(const std::vector<Data*>& row); //insert types //needs refactoring
 	void addColumn(const Data* data); //addcolumn 
 	
@@ -40,6 +56,7 @@ public:
 	void modify(unsigned targetColumn, const std::string& targetValue); //modify
 
 	void deleteSelectedRows(unsigned searchColumn, const Data* searchValue);//delete
+	///////////////////////////////////
 private:
 
 	void printRows(int start, int end) const;
@@ -61,5 +78,6 @@ private:
 	//will these be a good idea?
 	//int columnsCount() const;
 	//int rowsCount() const;
-	
+	bool setData(const std::vector<std::vector<Data*>>& other);
+	bool setName(const std::string& name); //it not needed for now
 };

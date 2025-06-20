@@ -36,6 +36,11 @@ void Decimal::print(std::ostream& os) const
     os << this->decimal;
 }
 
+void Decimal::read(std::istream& is)
+{
+    is >> this->decimal;
+}
+
 const char* Decimal::getName() const 
 { 
     return "Decimal";

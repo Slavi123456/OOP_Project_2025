@@ -29,6 +29,7 @@ public:
 	/////////////////////////////////////////////////////
 	//serialization and also printing to the cout stream
 	virtual void print(std::ostream& os) const = 0;
+	virtual void read(std::istream& is) = 0; //not really used because of NULL 
 
 	virtual const char* getName() const = 0; //for printing type name
 	//virtual std::string getData() const = 0; //i need explanation on why did i choose this over making a template with type which is restricted

@@ -72,6 +72,11 @@ void Date::print(std::ostream& os) const
     os << this->date << " " << this->month << " " << this->year;
 }
 
+void Date::read(std::istream& is)
+{
+    is >> this->date >> this->month >>this->year;
+}
+
 const char* Date::getName() const
 {
     return "Date";

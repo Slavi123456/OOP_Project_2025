@@ -55,6 +55,11 @@ void Integer::print(std::ostream& os) const
     os << this->integer;
 }
 
+void Integer::read(std::istream& is)
+{
+	is >> this->integer;
+}
+
 const char* Integer::getName() const
 {
     return "Integer";

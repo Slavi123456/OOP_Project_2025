@@ -13,69 +13,87 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\dataTypes">
+      <UniqueIdentifier>{addfedf0-0d93-4017-ba6e-436cbac09923}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\database">
+      <UniqueIdentifier>{e4dcad19-d279-44ec-b275-345c36c4afb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utilClasses">
+      <UniqueIdentifier>{fd8a7d9c-b14a-4e53-96e0-9c82cf325b40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dataTypes">
+      <UniqueIdentifier>{9ba83426-d35c-4242-a42c-ca06753d74a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utilClasses">
+      <UniqueIdentifier>{3b48495e-1e71-454c-b436-1287f01d52d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\database">
+      <UniqueIdentifier>{45d26513-28fe-4a74-91e4-3b835548ee3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DataBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Integer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Decimal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Table.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Factory.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\dataTypes</Filter>
     </ClCompile>
     <ClCompile Include="Date.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\dataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Integer.cpp">
+      <Filter>Source Files\dataTypes</Filter>
+    </ClCompile>
+    <ClCompile Include="Decimal.cpp">
+      <Filter>Source Files\dataTypes</Filter>
     </ClCompile>
     <ClCompile Include="String.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\dataTypes</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\utilClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory.cpp">
+      <Filter>Source Files\utilClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="Table.cpp">
+      <Filter>Source Files\database</Filter>
+    </ClCompile>
+    <ClCompile Include="DataBase.cpp">
+      <Filter>Source Files\database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandHandler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Data.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DataBase.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Decimal.hpp">
+      <Filter>Header Files\dataTypes</Filter>
     </ClInclude>
     <ClInclude Include="Date.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\dataTypes</Filter>
     </ClInclude>
-    <ClInclude Include="Decimal.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Data.hpp">
+      <Filter>Header Files\dataTypes</Filter>
     </ClInclude>
     <ClInclude Include="Integer.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\dataTypes</Filter>
     </ClInclude>
     <ClInclude Include="String.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\dataTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="DataBase.hpp">
+      <Filter>Header Files\database</Filter>
     </ClInclude>
     <ClInclude Include="Table.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\database</Filter>
     </ClInclude>
     <ClInclude Include="Factory.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utilClasses</Filter>
     </ClInclude>
     <ClInclude Include="Utils.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utilClasses</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

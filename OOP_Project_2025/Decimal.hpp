@@ -15,6 +15,7 @@ public:
 
 	//serialization
 	void print(std::ostream& os) const override; //needs to fill zeros behind the comma
+	void read(std::istream& is) override;
 
 	const char * getName() const override;
 	//std::string getData() const override;

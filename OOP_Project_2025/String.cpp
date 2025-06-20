@@ -130,6 +130,11 @@ void MyString::print(std::ostream& os) const
 	os << subStr;
 }
 
+void MyString::read(std::istream& is)
+{
+	is >> this->str;
+}
+
 const char* MyString::getName() const
 {
 	return "String";
